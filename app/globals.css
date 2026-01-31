@@ -1,0 +1,487 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Minimal, neutral design tokens */
+:root {
+  --background: 255 255 255;
+  --foreground: 17 17 17;
+  --card: 255 255 255;
+  --card-foreground: 17 17 17;
+  --popover: 255 255 255;
+  --popover-foreground: 17 17 17;
+  --primary: 0 0 0;
+  --primary-foreground: 255 255 255;
+  --secondary: 245 245 245;
+  --secondary-foreground: 17 17 17;
+  --muted: 115 115 115;
+  --muted-foreground: 115 115 115;
+  --border: 229 229 229;
+  --input: 255 255 255;
+  --ring: 0 0 0;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 10 10 10;
+  --foreground: 245 245 245;
+  --card: 16 16 16;
+  --card-foreground: 245 245 245;
+  --popover: 16 16 16;
+  --popover-foreground: 245 245 245;
+  --primary: 245 245 245;
+  --primary-foreground: 10 10 10;
+  --secondary: 24 24 24;
+  --secondary-foreground: 245 245 245;
+  --muted: 163 163 163;
+  --muted-foreground: 163 163 163;
+  --border: 38 38 38;
+  --input: 24 24 24;
+  --ring: 245 245 245;
+}
+
+/* Map CSS variables into Tailwind tokens */
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-caveat: var(--font-caveat);
+
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans;
+  }
+}
+
+/* Subtle transitions for theme changes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Imported from previous project's index.css for header/menu behavior */
+.radix-curtain {
+  overflow: hidden;
+}
+
+/* Per-trigger dropdown animation (when viewport is disabled) */
+@keyframes accordion-down {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.96);
+  }
+}
+
+.animate-accordion-down {
+  animation: accordion-down 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.animate-accordion-up {
+  animation: accordion-up 130ms cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+/* Ensure nav triggers are transparent over hero when header is transparent */
+.is-transparent [data-slot="navigation-menu-trigger"] {
+  background-color: transparent !important;
+}
+
+.is-transparent [data-slot="navigation-menu-trigger"]:hover,
+.is-transparent [data-slot="navigation-menu-trigger"]:focus {
+  background-color: transparent !important;
+}
+
+.navigation-menu-clean .radix-curtain {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #d1d5db !important;
+  /* subtle grey border */
+}
+
+.radix-curtain[data-state="open"] {
+  animation: curtain-height-down 220ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+.radix-curtain[data-state="closed"] {
+  animation: curtain-height-up 160ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes curtain-height-down {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+
+  100% {
+    height: var(--radix-navigation-menu-viewport-height);
+    opacity: 1;
+  }
+}
+
+@keyframes curtain-height-up {
+  0% {
+    height: var(--radix-navigation-menu-viewport-height);
+    opacity: 1;
+  }
+
+  100% {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* Dynamic scrollbar (WebKit + Firefox) */
+* {
+  scrollbar-width: var(--scrollbar-width, thin);
+  scrollbar-color: var(--scrollbar-thumb-bg, #3b82f6) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--scrollbar-thumb-bg, linear-gradient(180deg, #3b82f6 0%, #4f46e5 100%));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-bg, linear-gradient(180deg, #2563eb 0%, #4338ca 100%));
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hidden {
+  scrollbar-width: none !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+/* removed scrollbar-hidden behavior */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-sm px-4 py-2 text-sm font-medium transition-colors;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-outline {
+    @apply border border-border hover:bg-secondary;
+  }
+}
+
+/* Footer background pattern */
+.footer-bg-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23EAE8E1' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Material Symbols font support */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 24px;
+}
+
+/* Transparent overlay + smooth animations for booking dialog */
+.booking-dialog [data-slot="dialog-overlay"] {
+  background: transparent !important;
+}
+
+@keyframes booking-dialog-open {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -44%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes booking-dialog-close {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -44%) scale(0.96);
+  }
+}
+
+.booking-dialog[data-state="open"] {
+  animation: booking-dialog-open 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.booking-dialog[data-state="closed"] {
+  animation: booking-dialog-close 200ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Category Dialog smooth animations */
+@keyframes category-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes category-dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+}
+
+.category-dialog[data-state="open"] {
+  animation: category-dialog-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.category-dialog[data-state="closed"] {
+  animation: category-dialog-out 200ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Force remove shadow from newsletter image */
+.newsletter-image-container,
+.newsletter-image-container *,
+.newsletter-image-container:hover,
+.newsletter-image-container:focus,
+.newsletter-image-container:active {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  filter: none !important;
+}
+
+/* Testimonial swipe animations */
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Custom Scrollbar for category page */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--border));
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--muted));
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-in-out forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-in-out forwards;
+}
+
+/* Select dropdown animations */
+@keyframes select-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes select-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+}
+
+[data-slot="select-content"][data-state="open"] {
+  animation: select-fade-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-slot="select-content"][data-state="closed"] {
+  animation: select-fade-out 150ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Details/Summary (Itinerary & Pricing) animations */
+details {
+  overflow: visible;
+}
+
+details summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hide the default marker */
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Content animation wrapper */
+details>div {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 400ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+details[open]>div {
+  max-height: 2000px;
+  opacity: 1;
+  transition: max-height 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
