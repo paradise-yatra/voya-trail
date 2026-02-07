@@ -10,7 +10,6 @@ export default function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [direction, setDirection] = useState<"left" | "right">("right")
   const [openFaq, setOpenFaq] = useState<string | null>(null)
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
   const faq1Ref = useRef<HTMLDivElement | null>(null)
   const faq2Ref = useRef<HTMLDivElement | null>(null)
   const faq3Ref = useRef<HTMLDivElement | null>(null)
@@ -83,28 +82,29 @@ export default function Home() {
     <main className="bg-background overflow-x-hidden">
       <section
         id="hero"
-        className="relative flex min-h-[620px] sm:min-h-[720px] flex-col items-center justify-center gap-6 md:gap-8 bg-cover bg-center bg-no-repeat pt-0 pb-10 text-center text-white"
+        className="relative flex min-h-[100svh] flex-col items-center justify-center gap-4 sm:gap-6 md:gap-8 bg-cover bg-center bg-no-repeat px-4 py-20 sm:py-10 text-center text-white"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDcMUOt7G5ZxMt6zckl3E3uhFW7BZVbT1HOZpwGEV0rcvhotgsnBX-5PXnDl-ha7OZbruilVpaCCbYy-R7tf1OAjBj2ZFtE3CF_k2z1MOcyOUULbn8yPV38kDWGG-QotCJNIihVB_ge-ymdRBIyrp_xYA5V8TVFHuww1KRf251UlZoJAAyzAFXtUenEfB8twzF0WVTDKCQS2cbbuJlvFgVoH_DSvM4CgXQ5Yfzxy4BuI_qLu2nNYNlL7IMkc2MaAik-8dp5OB6Gfj4")',
+            'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%), url("/hero-luxury-landscape.png")',
         }}
-        aria-label="An overwater bungalow resort in the Maldives at sunset"
+        aria-label="A luxury glass villa in the mountains at blue hour with twilight sky"
       >
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-6 md:gap-8">
-          <div className="flex max-w-3xl flex-col gap-4">
-            <h1 className="text-[36px] leading-[44px] font-black tracking-tighter sm:text-[40px] sm:leading-[48px] md:text-[80px] md:leading-[88px]">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 sm:gap-6 md:gap-8">
+          <div className="flex max-w-4xl flex-col gap-3 sm:gap-4">
+            <h1 className="text-[36px] leading-[42px] font-black tracking-tight sm:text-[50px] sm:leading-[58px] md:text-[80px] md:leading-[88px] lg:text-[80px] lg:leading-[88px] drop-shadow-2xl">
               Journeys Beyond the Ordinary
             </h1>
-            <h2 className="text-sm sm:text-base font-normal leading-relaxed text-white/90 md:text-lg">
+            <h2 className="text-sm sm:text-base font-normal leading-relaxed text-white/90 md:text-xl max-w-xl mx-auto">
               Discover curated luxury travel, tailored exclusively for you.
             </h2>
           </div>
 
-          <div className="flex w-full max-w-3xl flex-col items-center gap-3 sm:gap-4 sm:flex-row">
-            <label className="flex h-[64px] sm:h-14 w-full flex-1 flex-col">
-              <div className="flex h-full min-h-[64px] sm:min-h-0 w-full items-stretch rounded-full border border-white/30 bg-white/20 backdrop-blur-sm">
+          <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-3 sm:gap-4">
+            {/* Search Bar - Visible on all devices */}
+            <label className="flex h-12 sm:h-14 w-full md:flex-1 flex-col">
+              <div className="flex h-full w-full items-stretch rounded-full border border-white/30 bg-white/20 backdrop-blur-sm">
                 <div className="flex items-center justify-center pl-4 text-white">
-                  <Search size={20} />
+                  <Search size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <input
                   className="form-input h-full w-full min-w-0 flex-1 resize-none border-0 bg-transparent px-2 text-sm sm:text-base font-normal leading-normal text-white placeholder:text-white/70 focus:outline-0 focus:ring-0"
@@ -114,22 +114,28 @@ export default function Home() {
               </div>
             </label>
 
-            <div className="flex w-full flex-shrink-0 gap-2 sm:gap-3 sm:w-auto">
+            {/* CTA Buttons - Side by side on mobile */}
+            <div className="flex w-full md:w-auto flex-row items-center justify-center gap-3">
               <Link
                 href="/packages"
-                className="flex h-12 sm:h-14 min-w-[84px] grow cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary px-5 sm:px-6 text-sm sm:text-base font-bold leading-normal tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90"
+                className="flex h-11 sm:h-12 flex-1 md:flex-initial min-w-0 md:min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary px-4 sm:px-8 text-[13px] sm:text-base font-bold leading-normal tracking-[0.015em] text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
-                <span className="truncate">Explore Packages</span>
+                Explore Packages
               </Link>
               <Link
                 href="#"
-                className="flex h-12 sm:h-14 min-w-[84px] grow cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full border border-white/30 bg-white/20 px-4 sm:px-5 text-sm sm:text-base font-bold leading-normal tracking-[0.015em] text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                className="flex h-11 sm:h-12 flex-1 md:flex-initial min-w-0 md:min-w-[160px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-[#8B0000] px-4 sm:px-8 text-[13px] sm:text-base font-bold leading-normal tracking-[0.015em] text-white shadow-lg hover:bg-[#700000] active:scale-[0.98]"
               >
-                <PlayCircle size={20} />
+                <PlayCircle size={18} />
                 <span className="truncate">Watch Video</span>
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Scroll indicator for mobile */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce sm:hidden">
+          <ChevronDown className="h-5 w-5 text-white/50" />
         </div>
       </section>
 
@@ -153,7 +159,7 @@ export default function Home() {
             <div className="hidden sm:flex items-center gap-3">
               <Link
                 href="/packages"
-                className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
               >
                 View All Packages
               </Link>
@@ -181,14 +187,14 @@ export default function Home() {
               {/* Variant cards */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Santorini cliffside white and blue domes at sunset"
                   style={{
                     backgroundImage:
                       'url("/greek-islands-white-blue-santorini.jpg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,299/P</span>
                   </div>
                 </div>
@@ -197,7 +203,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Santorini Cliffside Retreat</p>
                     <p className="mt-1 text-sm text-muted-foreground">5N/6D • Greece</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -205,14 +211,14 @@ export default function Home() {
 
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Iceland waterfall under aurora night sky"
                   style={{
                     backgroundImage:
                       'url("/iceland-waterfalls-geysers-northern-lights-landsca.jpg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,599/C</span>
                   </div>
                 </div>
@@ -221,7 +227,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Iceland Northern Lights</p>
                     <p className="mt-1 text-sm text-muted-foreground">6N/7D • Iceland</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -229,14 +235,14 @@ export default function Home() {
 
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Moroccan desert kasbah at sunset"
                   style={{
                     backgroundImage:
                       'url("/moroccan-desert-kasbah-sunset.jpg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,899</span>
                   </div>
                 </div>
@@ -245,7 +251,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Sahara & Kasbah Trails</p>
                     <p className="mt-1 text-sm text-muted-foreground">8N/9D • Morocco</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -253,14 +259,14 @@ export default function Home() {
 
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Bali tropical beach and resort at golden hour"
                   style={{
                     backgroundImage:
                       'url("/tropical-bali-beach-resort-with-clear-ocean.jpg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,499</span>
                   </div>
                 </div>
@@ -269,7 +275,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Bali Island Hideaway</p>
                     <p className="mt-1 text-sm text-muted-foreground">7N/8D • Indonesia</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -277,14 +283,14 @@ export default function Home() {
 
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Swiss Alps winter resort and lake"
                   style={{
                     backgroundImage:
                       'url("/luxury-alpine-resort-with-mountain-views-and-snow.jpg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,799</span>
                   </div>
                 </div>
@@ -293,7 +299,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Alpine Winter Escape</p>
                     <p className="mt-1 text-sm text-muted-foreground">5N/6D • Switzerland</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -303,7 +309,7 @@ export default function Home() {
           <div className="mt-6 flex sm:hidden justify-center">
             <Link
               href="/packages"
-              className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
             >
               View All Packages
             </Link>
@@ -325,7 +331,7 @@ export default function Home() {
             <div className="hidden sm:flex items-center gap-3">
               <Link
                 href="/packages"
-                className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
               >
                 View All Packages
               </Link>
@@ -353,14 +359,14 @@ export default function Home() {
               {/* Card 1 */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="A lush green vineyard under the warm Tuscan sun"
                   style={{
                     backgroundImage:
                       'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMoNJZH1otxwMfBt8qM6Mf-RaTrng3giLzXAadJH_UF_w3omsW_ejMyfltugNnEssLI6mVrqW657DAg14jA_CJ7pzUESSYUgoRVTmNWvY8yjA4JSvqNCYkRm-tD_vTERA_d8IXQUyZZXZzqct4wHQsk68ubvNBTEBAVyRj7BL-77j-Z-QolLcg-EOczrO8V9MpLuKmKmPOcK1o-lhI1OhO700LoYkhxcI1ikGqdTw0HBL4vb0cKOBU_QBsLK6ottz5QrGoqy-XD88")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$1,899</span>
                   </div>
                 </div>
@@ -369,7 +375,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Tuscan Vineyard Escape</p>
                     <p className="mt-1 text-sm text-muted-foreground">7N/8D • Italy</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -378,14 +384,14 @@ export default function Home() {
               {/* Card 2 */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="A serene ancient temple in Kyoto surrounded by autumn foliage"
                   style={{
                     backgroundImage:
                       'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAWJmEXWElIbq1uzoia1hV3PNLbF2amjq0aGkZLgDpM-gwJ_wiPip88e9uH7ptuwV2RRfYWORHcBVEZBN603bRcddDS7jPOYojqvWUrFIPAog6_sRoK7wmFzTYIpiSPPvWDapH0oZRejxHfGhxLNJltBENJ1RS1Uq9kRtpoNwXvgieEXwo-sSZC4rsGy7Mgp0Lmk-y8NNw6eDZ1fOGicbj-zrMoKWOpiTv2SJSXC9PBKv9NMsDPHUzCA39yBQCQgAwtSJNvBpCLQvg")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$2,199</span>
                   </div>
                 </div>
@@ -394,7 +400,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Kyoto's Ancient Secrets</p>
                     <p className="mt-1 text-sm text-muted-foreground">8N/9D • Japan</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -403,14 +409,14 @@ export default function Home() {
               {/* Card 3 */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="A vast herd of wildebeest migrating across the Serengeti plains at sunset"
                   style={{
                     backgroundImage:
                       'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCWncM-gjwvz-Sg4hIKGIwueWD45V4G_8FbR1acFW6ONFgbvfIm5ePedwCtgGbUWSndpTO92wo4pa8uY8dpwbaqHD4QU-VT0RmDeAEtPp-N1l2PkGG8NaHfRy80HtyyKujLMw4Y0w7p5zyPFaaRY82cJikMX66Sq0P-M7qPbDWuCbdcyj2Hu7an2fkV53dI6FmfgyzEfMRpe_V8EUeffUCWQBcTh9r0z_F17MmTX7jGDri5C1MxSVD0q0KSHnUbypzsqqEiegwyNbs")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$2,499</span>
                   </div>
                 </div>
@@ -419,7 +425,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">The Great Serengeti Migration</p>
                     <p className="mt-1 text-sm text-muted-foreground">8N/9D • Tanzania</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -428,14 +434,14 @@ export default function Home() {
               {/* Card 4 */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="A luxury yacht sailing on the clear blue waters of the Aegean Sea"
                   style={{
                     backgroundImage:
                       'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBODJzo5rgyJZbbWiHrBb8HUfNiOg2zQi2PxIXBkmIsHUsEX3Cnw2tvfXw3d-iWQ8fnxGlzmmeBfD6x1ky_OIVET0jJa_poOsDM765Hmtka776QcxFyuJXr-D_fVEJKtXNQM5dqQTBqWvg0lrnm14RZpyJ48ZRdFuBqDirUwk5_mExLZ4SRfluPRbm3KEKAiydSqqvsBxdT0wUc93rXtLA1GJmccCKOIDybRIAzprM-SuXQh0wgxjhj9fra6kDTYRHwu7D7i3YXt6k")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$3,299</span>
                   </div>
                 </div>
@@ -444,7 +450,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Aegean Yacht Adventure</p>
                     <p className="mt-1 text-sm text-muted-foreground">6N/7D • Greece</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -453,14 +459,14 @@ export default function Home() {
               {/* Card 5 */}
               <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
                 <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat"
+                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                   aria-label="Snow-capped mountains and pristine lakes in Patagonia"
                   style={{
                     backgroundImage:
                       'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDematr3mwor3AJJyAGm9G0ttwp8oM-nvSTgoqAQJ5dsm5Rl4xTzmF3JFBdACWgcQ575Ti_1oZOmPDNkc-rNYj2npgCerRGUYh1-Z8paf6zYnCgB89O8LmCPYFqA6UuGcIQvewEwUMekxIxxVAB3oUjDSfIqb1R89FSMKJUska_VGpGnqBHN9G_O4NQ8UuPAPdHKnH0Cu2O8mzgeMBvmQTGv1U4ogz69r9RiAotsw71_NHRQQwA49C2dUnxfBlVhw8IHSs57d3JHnM")',
                   }}
                 >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl">
+                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
                     <span className="text-lg font-bold">$2,799</span>
                   </div>
                 </div>
@@ -469,7 +475,7 @@ export default function Home() {
                     <p className="text-lg font-semibold text-foreground">Patagonia Wilderness Trek</p>
                     <p className="mt-1 text-sm text-muted-foreground">10N/11D • Chile</p>
                   </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-primary-foreground transition-colors hover:bg-primary/90">
+                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -479,7 +485,7 @@ export default function Home() {
           <div className="mt-6 flex sm:hidden justify-center">
             <Link
               href="/packages"
-              className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
             >
               View All Packages
             </Link>
@@ -731,7 +737,7 @@ export default function Home() {
           {/* Content Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 auto-rows-[180px] gap-4">
             {/* Latest Stories List */}
-            <div className="col-span-1 row-span-3 bg-card rounded-xl border border-border flex flex-col overflow-hidden shadow-sm order-last md:order-first">
+            <div className="col-span-1 row-span-3 bg-card rounded-xl border border-border flex flex-col overflow-hidden order-last md:order-first">
               <div className="p-4 border-b border-border/80 flex justify-between items-center">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                   <span className="text-primary text-lg">📖</span>
@@ -1004,8 +1010,8 @@ export default function Home() {
               We&apos;re honored by the feedback, and it fuels our commitment to delivering exceptional travel experiences. Read the reviews to hear firsthand how we&apos;re making a positive impact on people&apos;s journeys. Your trust is our greatest achievement.
             </p>
           </div>
-          <div className="flex overflow-x-auto gap-8 pb-8 -mx-4 px-4 md:-mx-0 md:px-0 scrollbar-hidden snap-x snap-mandatory">
-            <div className="min-w-[85%] md:min-w-[45%] lg:min-w-[32%] snap-start bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700">
               <div>
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
@@ -1023,7 +1029,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground mt-1">June 01, 2023</p>
               </div>
             </div>
-            <div className="min-w-[85%] md:min-w-[45%] lg:min-w-[32%] snap-start bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700">
               <div>
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
@@ -1041,7 +1047,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground mt-1">November 09, 2023</p>
               </div>
             </div>
-            <div className="min-w-[85%] md:min-w-[45%] lg:min-w-[32%] snap-start bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700 opacity-50 md:opacity-100">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 flex flex-col justify-between h-auto border border-gray-100 dark:border-gray-700">
               <div>
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
@@ -1060,45 +1066,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mt-8 md:mt-16 gap-8">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-primary flex-shrink-0">
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </span>
-                <span className="font-bold text-xl text-foreground">Trustpilot</span>
-                <div className="flex gap-1 ml-2">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="w-6 h-6 bg-[#8B0000] flex items-center justify-center rounded-sm">
-                      <Star className="w-4 h-4 text-white fill-white" />
-                    </div>
-                  ))}
-                </div>
-                <span className="text-foreground text-lg font-medium ml-1">Excellent</span>
-              </div>
-              <p className="text-sm text-muted-foreground font-normal">
-                4.9 Rating based on 7,772 reviews
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                type="button"
-                className="w-12 h-12 rounded-full border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="w-12 h-12 rounded-full border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                aria-label="Next"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+
         </div>
       </section>
 
@@ -1109,7 +1077,6 @@ export default function Home() {
             {/* Left Column: FAQ Content */}
             <div className="lg:col-span-8 flex flex-col gap-10">
               <div className="flex flex-col gap-4">
-                <span className="text-primary font-bold text-sm tracking-widest uppercase">Support Center</span>
                 <h2 className="text-[36px] font-extrabold text-[#8B0000] leading-[1.1] tracking-tight">
                   Frequently Asked Questions
                 </h2>
@@ -1368,10 +1335,10 @@ export default function Home() {
                   </p>
 
                   <div className="flex flex-col gap-3">
-                    <button className="flex items-center justify-center gap-2 h-11 w-full rounded-lg bg-primary text-white font-semibold">
+                    <a href="mailto:support@voyatrail.com" className="flex items-center justify-center gap-2 h-11 w-full rounded-lg bg-primary text-white font-semibold hover:bg-red-800 transition-colors">
                       <span className="text-base">✉</span>
                       Email Support
-                    </button>
+                    </a>
                     <button className="flex items-center justify-center gap-2 h-11 w-full rounded-lg border border-border text-foreground">
                       <span className="text-base">💬</span>
                       Chat on WhatsApp
@@ -1448,7 +1415,7 @@ export default function Home() {
                     </div>
                   </div>
                   <button
-                    className="h-12 w-full bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-[8px] transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer"
+                    className="h-12 w-full bg-primary hover:bg-red-800 text-white font-bold text-base rounded-[8px] transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer"
                     type="button"
                   >
                     <span>SUBSCRIBE</span>
@@ -1471,86 +1438,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Booking Modal */}
-      {isBookingOpen && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setIsBookingOpen(false)} />
-          <div className="relative z-10 flex h-full w-full items-center justify-center p-4 sm:p-6 md:p-8">
-            <div className="flex w-full max-w-4xl max-h-[95vh] overflow-hidden bg-white dark:bg-zinc-900 rounded-xl shadow-2xl">
-              <div className="w-2/5 relative hidden lg:block">
-                <img className="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmMI1o3bBV9wXVI_bdwRmoX6iV8uurfqfRtKj9yQ_Bydcc2BeVPLu1Xi_dxv1cAWKTbzfQAKYmUs4nr3A7T_2cxzvEui0gvx0OIY1b3dDGkFqVqhGp8noYo_CxlPngF6RH2zIg645GAV6gZzjVVXEzG4ngRqE_dPxDHDt_vNLQDfwjIdpcQVKBRc8wBC_RMW2Qq2B5C6gMeSlLmmXkOO5_spCKfqwsHzW45BP2anzrpv5LtI0rhBBpWmsDTMSrJbG5tna2sUckmBM" alt="Patagonia Expedition" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-8 text-white">
-                  <h3 className="text-3xl font-bold">Patagonia Expedition</h3>
-                  <p className="mt-2 text-white/80">Embark on a journey to the edge of the world. Witness breathtaking glaciers, pristine lakes, and rugged mountains.</p>
-                </div>
-              </div>
-              <div className="w-full lg:w-3/5 flex flex-col p-6 sm:p-8 md:p-10 overflow-y-auto">
-                <div className="flex w-full items-start justify-between mb-6">
-                  <div className="flex flex-col">
-                    <h2 className="text-[#111318] dark:text-white tracking-tight text-3xl font-bold leading-tight">Book Your Adventure</h2>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">Fill in the details below to reserve your spot.</p>
-                  </div>
-                  <button aria-label="Close" onClick={() => setIsBookingOpen(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-[6px]">
-                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                  </button>
-                </div>
-                <div className="flex flex-col space-y-6">
-                  <div className="flex flex-col">
-                    <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Preferred Dates</p>
-                    <div className="flex flex-col gap-0.5 border border-[#dbdfe6] dark:border-zinc-700 rounded-[6px] p-4 bg-white dark:bg-zinc-900">
-                      <div className="flex items-center justify-between pb-2">
-                        <button className="text-[#111318] dark:text-white rounded-[6px] px-2 py-1">◀</button>
-                        <p className="text-[#111318] dark:text-white text-base font-bold leading-tight">October 2024</p>
-                        <button className="text-[#111318] dark:text-white rounded-[6px] px-2 py-1">▶</button>
-                      </div>
-                      <div className="grid grid-cols-7 gap-y-1 text-center">
-                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => (
-                          <p key={d} className="text-gray-500 dark:text-gray-400 text-[13px] font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center pb-0.5">{d}</p>
-                        ))}
-                        {[...Array(30)].map((_, i) => (
-                          <button key={i} className="h-10 w-full text-[#111318] dark:text-white text-sm font-medium leading-normal hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full"><div className="flex size-full items-center justify-center">{i + 1}</div></button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 h-14 justify-between border border-[#dbdfe6] dark:border-zinc-700 rounded-[6px]">
-                    <div className="flex items-center gap-4">
-                      <div className="text-[#111318] dark:text-white flex items-center justify-center shrink-0 size-10">👥</div>
-                      <p className="text-[#111318] dark:text-white text-base font-normal leading-normal">Number of Travelers</p>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="flex items-center gap-2 text-[#111318] dark:text-white">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">-</button>
-                        <input className="text-base font-medium leading-normal w-8 text-center bg-transparent focus:outline-0" type="number" defaultValue={2} />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">+</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <label className="flex flex-col flex-1">
-                      <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Full Name</p>
-                      <input className="form-input h-14 rounded-[6px] text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 placeholder:text-[#616f89] p-[15px] text-base" placeholder="Enter your full name" />
-                    </label>
-                    <label className="flex flex-col flex-1">
-                      <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Email Address</p>
-                      <input className="form-input h-14 rounded-[6px] text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 placeholder:text-[#616f89] p-[15px] text-base" placeholder="Enter your email address" />
-                    </label>
-                    <label className="flex flex-col flex-1 md:col-span-2">
-                      <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Phone Number</p>
-                      <input className="form-input h-14 rounded-[6px] text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 placeholder:text-[#616f89] p-[15px] text-base" placeholder="Enter your phone number (optional)" />
-                    </label>
-                  </div>
-                  <div className="pt-2">
-                    <button className="w-full bg-primary text-white font-bold py-3 px-6 rounded-[6px] h-12 flex items-center justify-center hover:bg-primary/90 transition-colors duration-200">Book Now</button>
-                    <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">Our team will contact you within 24 hours to confirm the details.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
     </main>
   )
 }

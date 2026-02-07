@@ -3,9 +3,12 @@
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, MapPin, Phone, Mail, ChevronDown } from "lucide-react"
+import { Menu, X, MapPin, Phone, Mail, ChevronDown, ChevronLeft, ChevronRight, ChevronDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogOverlay, DialogTitle } from "@/components/ui/dialog"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 
 export const Header = () => {
@@ -13,64 +16,113 @@ export const Header = () => {
   const [mobileExpandedSection, setMobileExpandedSection] = useState<string | null>(null)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
   const [isTransparent, setIsTransparent] = useState<boolean>(false)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const headerRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const [bookingForm, setBookingForm] = useState({
     name: "",
     email: "",
     phone: "",
-    travelers: 2,
+    destination: "",
+    budget: "",
+    message: "",
+    newsletter: true,
     selectedDate: null as Date | null,
-    selectedMonth: new Date(),
   })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
   const toggleMobileSection = (section: string) => {
     setMobileExpandedSection(mobileExpandedSection === section ? null : section)
   }
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+
+    // Name validation
+    if (!bookingForm.name.trim()) {
+      errors.name = "Name is required"
+    } else if (bookingForm.name.trim().length < 2) {
+      errors.name = "Name must be at least 2 characters"
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!bookingForm.email.trim()) {
+      errors.email = "Email is required"
+    } else if (!emailRegex.test(bookingForm.email)) {
+      errors.email = "Please enter a valid email address"
+    }
+
+    // Phone validation (optional but if provided, must be valid)
+    if (bookingForm.phone.trim()) {
+      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
+      if (!phoneRegex.test(bookingForm.phone) || bookingForm.phone.replace(/\D/g, '').length < 10) {
+        errors.phone = "Please enter a valid phone number"
+      }
+    }
+
+    // Destination validation
+    if (!bookingForm.destination.trim()) {
+      errors.destination = "Destination is required"
+    }
+
+    // Budget validation
+    if (!bookingForm.budget.trim()) {
+      errors.budget = "Budget is required"
+    }
+
+    // Date validation
+    if (!bookingForm.selectedDate) {
+      errors.selectedDate = "Please select a travel date"
+    } else if (bookingForm.selectedDate < new Date()) {
+      errors.selectedDate = "Travel date must be in the future"
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleBookingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      toast({
+        title: "Please fix the errors",
+        description: "Some fields need your attention.",
+        variant: "destructive",
+        duration: 3000,
+      })
+      return
+    }
+
     console.log("Booking form submitted:", bookingForm)
     setIsBookingOpen(false)
     toast({
       title: "Booking Inquiry Submitted!",
       description:
-        "Our team will contact you within 24 hours to confirm the details.",
+        "Thank you for your inquiry. We'll get back to you soon.",
       duration: 6000,
     })
     setBookingForm({
       name: "",
       email: "",
       phone: "",
-      travelers: 2,
+      destination: "",
+      budget: "",
+      message: "",
+      newsletter: true,
       selectedDate: null,
-      selectedMonth: new Date(),
     })
+    setFormErrors({})
   }
 
   const handleInputChange = (field: string, value: any) => {
     setBookingForm((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const changeMonth = (direction: "prev" | "next") => {
-    setBookingForm((prev) => {
-      const newMonth = new Date(prev.selectedMonth)
-      if (direction === "prev") {
-        newMonth.setMonth(newMonth.getMonth() - 1)
-      } else {
-        newMonth.setMonth(newMonth.getMonth() + 1)
-      }
-      return { ...prev, selectedMonth: newMonth }
-    })
-  }
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1).getDay()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    return { firstDay, daysInMonth }
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }))
+    }
   }
 
   // Make header transparent when hero is visible on home page
@@ -165,7 +217,7 @@ export const Header = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>info@wanderlust.com</span>
+                <a href="mailto:sales@voyatrail.com" className="hover:underline">sales@voyatrail.com</a>
               </div>
             </div>
             <div className={`flex items-center space-x-2 ${isTransparent ? "text-white" : "text-slate-600"}`}>
@@ -191,7 +243,7 @@ export const Header = () => {
               <Link
                 key={country}
                 href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
-                className={`text-sm font-semibold transition-colors hover:text-blue-600 ${isTransparent ? "text-white hover:text-white/80" : "text-slate-700"}`}
+                className={`text-sm font-semibold transition-colors hover:text-red-600 ${isTransparent ? "text-white hover:text-red-500" : "text-slate-700"}`}
               >
                 {country}
               </Link>
@@ -199,224 +251,214 @@ export const Header = () => {
           </nav>
 
           <div className="hidden items-center space-x-4 md:flex">
-            <Button asChild className="bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg transition-all duration-300 hover:from-green-700 hover:to-green-800 hover:shadow-green-500/20 px-6">
+            <Button asChild className="bg-black text-white shadow-lg transition-all duration-300 hover:bg-zinc-900 w-[120px] h-10 px-0 cursor-pointer">
               <Link href="/payment">Pay Now</Link>
             </Button>
 
             <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 px-6">
-                  Book Now
+                <Button className="bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg transition-all duration-300 hover:from-red-700 hover:to-red-900 hover:shadow-red-500/20 w-[120px] h-10 px-0 cursor-pointer">
+                  Get Quote
                 </Button>
               </DialogTrigger>
               <DialogContent
-                className="booking-dialog max-h-[95vh] max-w-[95vw] overflow-hidden p-0 sm:max-w-4xl bg-transparent border-0 shadow-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-4 data-[state=open]:slide-in-from-top-4 transition-all duration-300 ease-out"
+                className="p-0 border-0 shadow-2xl overflow-hidden max-w-3xl w-full h-full sm:h-auto sm:max-h-[90vh] sm:rounded-2xl"
                 showCloseButton={false}
               >
                 <DialogTitle className="sr-only">Book Your Adventure</DialogTitle>
-                <div className="flex flex-col lg:flex-row w-full max-w-4xl max-h-[95vh] overflow-hidden bg-white dark:bg-zinc-900 rounded-xl shadow-2xl">
-                  {/* Left Side: Image and Details */}
-                  <div className="w-full lg:w-2/5 relative hidden lg:block">
+
+                <div className="flex flex-col lg:flex-row bg-white dark:bg-zinc-900 overflow-hidden h-full lg:h-[700px]">
+                  {/* Left Panel - Feature Image */}
+                  <div className="hidden lg:block lg:w-1/2 relative h-full">
                     <img
-                      className="h-full w-full object-cover"
-                      alt="A tranquil lake scene with mountains in the background, representing a peaceful travel destination."
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmMI1o3bBV9wXVI_bdwRmoX6iV8uurfqfRtKj9yQ_Bydcc2BeVPLu1Xi_dxv1cAWKTbzfQAKYmUs4nr3A7T_2cxzvEui0gvx0OIY1b3dDGkFqVqhGp8noYo_CxlPngF6RH2zIg645GAV6gZzjVVXEzG4ngRqE_dPxDHDt_vNLQDfwjIdpcQVKBRc8wBC_RMW2Qq2B5C6gMeSlLmmXkOO5_spCKfqwsHzW45BP2anzrpv5LtI0rhBBpWmsDTMSrJbG5tna2sUckmBM"
+                      src="/images/northern-lights.png"
+                      alt="Northern Lights Aurora"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 p-8 text-white">
-                      <h3 className="text-3xl font-bold">Patagonia Expedition</h3>
-                      <p className="mt-2 text-white/80">
-                        Embark on a journey to the edge of the world. Witness breathtaking glaciers, pristine lakes, and rugged mountains.
-                      </p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
+                    <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-20">
+                      <h3 className="text-2xl font-bold mb-2 leading-tight">Chase the Northern Lights</h3>
+                      <p className="text-white/80 text-sm leading-relaxed max-w-xs">Witness nature's most spectacular light show in destinations like Norway, Iceland, and Finland.</p>
                     </div>
                   </div>
-                  {/* Right Side: Booking Form */}
-                  <div className="w-full lg:w-3/5 flex flex-col p-6 sm:p-8 md:p-10 overflow-y-auto">
-                    <div className="flex w-full items-start justify-between mb-6">
-                      <div className="flex flex-col">
-                        <h2 className="text-[#111318] dark:text-white tracking-tight text-3xl font-bold leading-tight">
-                          Book Your Adventure
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">Fill in the details below to reserve your spot.</p>
+
+                  {/* Right Panel - Booking Form */}
+                  <div className="w-full lg:w-1/2 flex flex-col h-full lg:max-h-[750px]">
+                    {/* Sticky Header inside scroll area */}
+                    <div className="flex items-center justify-between p-5 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 z-10">
+                      <div>
+                        <h2 className="text-2xl font-black text-red-800 dark:text-red-700 tracking-tight">Book Your Trip</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">Let's craft your perfect journey together.</p>
                       </div>
                       <button
+                        type="button"
                         onClick={() => setIsBookingOpen(false)}
-                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors group cursor-pointer"
                       >
-                        <span className="material-symbols-outlined">close</span>
+                        <X className="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
                       </button>
                     </div>
-                    <form onSubmit={handleBookingSubmit} className="flex flex-col space-y-6">
-                      {/* Date Picker */}
-                      <div className="flex flex-col">
-                        <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Preferred Dates</p>
-                        <div className="flex min-w-72 max-w-full flex-1 flex-col gap-0.5 border border-[#dbdfe6] dark:border-zinc-700 rounded-lg p-4 bg-white dark:bg-zinc-900">
-                          <div className="flex items-center justify-between pb-2">
-                            <button
-                              type="button"
-                              onClick={() => changeMonth("prev")}
-                              className="text-[#111318] dark:text-white"
-                            >
-                              <span className="material-symbols-outlined text-lg">chevron_left</span>
-                            </button>
-                            <p className="text-[#111318] dark:text-white text-base font-bold leading-tight flex-1 text-center">
-                              {bookingForm.selectedMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => changeMonth("next")}
-                              className="text-[#111318] dark:text-white"
-                            >
-                              <span className="material-symbols-outlined text-lg">chevron_right</span>
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-7 text-center">
-                            {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
-                              <p
-                                key={idx}
-                                className="text-gray-500 dark:text-gray-400 text-[13px] font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center pb-0.5"
-                              >
-                                {day}
-                              </p>
-                            ))}
-                            {(() => {
-                              const { firstDay, daysInMonth } = getDaysInMonth(bookingForm.selectedMonth)
-                              const days: React.JSX.Element[] = []
-                              // Empty cells for days before month starts
-                              for (let i = 0; i < firstDay; i++) {
-                                days.push(
-                                  <button
-                                    key={`empty-${i}`}
-                                    type="button"
-                                    className="h-10 w-full text-gray-400 dark:text-gray-500 text-sm font-medium leading-normal cursor-not-allowed"
-                                    disabled
-                                  >
-                                    <div className="flex size-full items-center justify-center rounded-full"></div>
-                                  </button>
-                                )
-                              }
-                              // Days of the month
-                              for (let day = 1; day <= daysInMonth; day++) {
-                                const isSelected = bookingForm.selectedDate?.getDate() === day &&
-                                  bookingForm.selectedDate?.getMonth() === bookingForm.selectedMonth.getMonth() &&
-                                  bookingForm.selectedDate?.getFullYear() === bookingForm.selectedMonth.getFullYear()
-                                days.push(
-                                  <button
-                                    key={day}
-                                    type="button"
-                                    onClick={() => {
-                                      const newDate = new Date(
-                                        bookingForm.selectedMonth.getFullYear(),
-                                        bookingForm.selectedMonth.getMonth(),
-                                        day
-                                      )
-                                      handleInputChange("selectedDate", newDate)
-                                    }}
-                                    className={`h-10 w-full text-sm font-medium leading-normal ${isSelected
-                                      ? "text-white rounded-full bg-primary/20 dark:bg-primary/30"
-                                      : "text-[#111318] dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full"
-                                      }`}
-                                  >
-                                    <div
-                                      className={`flex size-full items-center justify-center ${isSelected ? "rounded-full bg-primary" : "rounded-full"
-                                        }`}
-                                    >
-                                      {day}
-                                    </div>
-                                  </button>
-                                )
-                              }
-                              return days
-                            })()}
-                          </div>
-                        </div>
-                      </div>
-                      {/* Number of Travelers */}
-                      <div className="flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 h-14 justify-between border border-[#dbdfe6] dark:border-zinc-700 rounded-xl">
-                        <div className="flex items-center gap-4">
-                          <div className="text-[#111318] dark:text-white flex items-center justify-center shrink-0 size-10">
-                            <span className="material-symbols-outlined">group</span>
-                          </div>
-                          <p className="text-[#111318] dark:text-white text-base font-normal leading-normal flex-1 truncate">
-                            Number of Travelers
-                          </p>
-                        </div>
-                        <div className="shrink-0">
-                          <div className="flex items-center gap-2 text-[#111318] dark:text-white">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (bookingForm.travelers > 1) {
-                                  handleInputChange("travelers", bookingForm.travelers - 1)
-                                }
-                              }}
-                              className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-[#f6f6f8] dark:bg-zinc-800 cursor-pointer"
-                            >
-                              -
-                            </button>
+
+                    {/* Scrollable Form Content */}
+                    <div className="flex-1 overflow-y-auto p-5 sm:p-6 scrollbar-thin">
+                      <form onSubmit={handleBookingSubmit} className="space-y-4">
+                        {/* Name and Email Row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Name <span className="text-red-500">*</span>
+                            </label>
                             <input
-                              type="number"
-                              value={bookingForm.travelers}
-                              onChange={(e) => handleInputChange("travelers", parseInt(e.target.value) || 1)}
-                              className="text-base font-medium leading-normal w-4 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                              min="1"
+                              type="text"
+                              value={bookingForm.name}
+                              onChange={(e) => handleInputChange("name", e.target.value)}
+                              placeholder="Your Name"
+                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.name ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
                             />
-                            <button
-                              type="button"
-                              onClick={() => handleInputChange("travelers", bookingForm.travelers + 1)}
-                              className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-[#f6f6f8] dark:bg-zinc-800 cursor-pointer"
-                            >
-                              +
-                            </button>
+                            {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              value={bookingForm.email}
+                              onChange={(e) => handleInputChange("email", e.target.value)}
+                              placeholder="john@example.com"
+                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.email ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                            />
+                            {formErrors.email && <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>}
                           </div>
                         </div>
-                      </div>
-                      {/* Personal Details Fields */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-                        <label className="flex flex-col flex-1">
-                          <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Full Name</p>
+
+                        {/* Mobile and Destination Row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Mobile Number <span className="text-gray-400 font-normal">(optional)</span>
+                            </label>
+                            <input
+                              type="tel"
+                              value={bookingForm.phone}
+                              onChange={(e) => handleInputChange("phone", e.target.value)}
+                              placeholder="+91 98765 43210"
+                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.phone ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                            />
+                            {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Destination <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={bookingForm.destination}
+                              onChange={(e) => handleInputChange("destination", e.target.value)}
+                              placeholder="e.g. Bali, Japan"
+                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.destination ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                            />
+                            {formErrors.destination && <p className="text-xs text-red-500 mt-1">{formErrors.destination}</p>}
+                          </div>
+                        </div>
+
+                        {/* Budget */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                            Budget <span className="text-red-500">*</span>
+                          </label>
                           <input
-                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal"
-                            placeholder="Enter your full name"
-                            value={bookingForm.name}
-                            onChange={(e) => handleInputChange("name", e.target.value)}
-                            required
+                            type="text"
+                            value={bookingForm.budget}
+                            onChange={(e) => handleInputChange("budget", e.target.value)}
+                            placeholder="e.g. $2000 - $3000"
+                            className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.budget ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
                           />
-                        </label>
-                        <label className="flex flex-col flex-1">
-                          <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Email Address</p>
-                          <input
-                            type="email"
-                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal"
-                            placeholder="Enter your email address"
-                            value={bookingForm.email}
-                            onChange={(e) => handleInputChange("email", e.target.value)}
-                            required
+                          {formErrors.budget && <p className="text-xs text-red-500 mt-1">{formErrors.budget}</p>}
+                        </div>
+
+                        {/* Date Selection */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                            Date of Travel <span className="text-red-500">*</span>
+                          </label>
+                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                data-empty={!bookingForm.selectedDate}
+                                className={`w-full justify-between text-left font-medium h-11 rounded-xl bg-white dark:bg-zinc-900 data-[empty=true]:text-muted-foreground transition-all focus:border-red-500 focus:ring-4 focus:ring-red-500/10 cursor-pointer text-base ${formErrors.selectedDate ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                              >
+                                {bookingForm.selectedDate ? (
+                                  format(bookingForm.selectedDate, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <ChevronDownIcon className="h-4 w-4 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={bookingForm.selectedDate || undefined}
+                                onSelect={(date) => {
+                                  handleInputChange("selectedDate", date)
+                                  setIsDatePickerOpen(false)
+                                }}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className="[&_button]:hover:bg-gray-100 [&_button]:transition-colors [&_button]:cursor-pointer"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          {formErrors.selectedDate && <p className="text-xs text-red-500 mt-1">{formErrors.selectedDate}</p>}
+                        </div>
+
+                        {/* Message / Requirements */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                            Message
+                          </label>
+                          <textarea
+                            value={bookingForm.message}
+                            onChange={(e) => handleInputChange("message", e.target.value)}
+                            placeholder="Any specific requests or info..."
+                            className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-black focus:ring-0 outline-none transition-all text-sm min-h-[70px]"
                           />
-                        </label>
-                        <label className="flex flex-col flex-1 md:col-span-2">
-                          <p className="text-[#111318] dark:text-white text-base font-medium leading-normal pb-2">Phone Number</p>
-                          <input
-                            type="tel"
-                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbdfe6] dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:border-primary dark:focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal"
-                            placeholder="Enter your phone number (optional)"
-                            value={bookingForm.phone}
-                            onChange={(e) => handleInputChange("phone", e.target.value)}
-                          />
-                        </label>
-                      </div>
-                      <div className="pt-4">
-                        <button
-                          type="submit"
-                          className="w-full bg-primary text-white font-bold py-4 px-6 rounded-xl h-14 flex items-center justify-center hover:bg-primary/90 transition-colors duration-200"
-                        >
-                          Book Now
-                        </button>
-                        <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
-                          Our team will contact you within 24 hours to confirm the details.
-                        </p>
-                      </div>
-                    </form>
+                        </div>
+
+                        {/* Newsletter Checkbox */}
+                        <div className="flex items-start gap-2.5 bg-slate-50/50 dark:bg-zinc-800/30 p-3 rounded-lg border border-gray-100 dark:border-zinc-800">
+                          <div className="flex items-center h-5">
+                            <input
+                              type="checkbox"
+                              id="newsletter"
+                              checked={bookingForm.newsletter}
+                              onChange={(e) => handleInputChange("newsletter", e.target.checked)}
+                              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                            />
+                          </div>
+                          <label htmlFor="newsletter" className="text-[12px] text-gray-600 dark:text-gray-400 cursor-pointer select-none leading-relaxed">
+                            Keep me updated with exclusive travel deals, curated itineraries, and member-only updates regarding travel deals and other info.
+                          </label>
+                        </div>
+
+                        {/* Submit Action */}
+                        <div className="pt-2 space-y-3">
+                          <button
+                            type="submit"
+                            className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-lg active:scale-[0.97] transition-all duration-300 flex items-center justify-center gap-2 text-base cursor-pointer mt-4"
+                          >
+                            Send Inquiry
+                          </button>
+                          <div className="text-center">
+                            <p className="text-[9px] text-gray-400 dark:text-gray-600 italic px-4">
+                              By submitting this form, you accept our <Link href="/privacy" className="underline hover:text-red-500 transition-colors">Privacy Policy</Link> and <Link href="/terms" className="underline hover:text-red-500 transition-colors">Terms of Service</Link>.
+                            </p>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </DialogContent>
@@ -425,47 +467,83 @@ export const Header = () => {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`rounded-md p-2 md:hidden text-slate-700 hover:bg-slate-100 hover:text-blue-600`}
-            aria-label="Open menu"
+            className={`relative rounded-lg p-2 md:hidden cursor-pointer transition-all duration-200 ${isTransparent
+              ? 'text-white hover:bg-white/10'
+              : 'text-slate-700 hover:bg-slate-100'
+              }`}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <div className="relative w-6 h-6 flex items-center justify-center">
+              {/* Animated hamburger lines */}
+              <span
+                className={`absolute h-0.5 w-5 rounded-full transition-all duration-300 ease-out ${isTransparent ? 'bg-white' : 'bg-slate-700'
+                  } ${isMenuOpen ? 'rotate-45' : '-translate-y-1.5'}`}
+              />
+              <span
+                className={`absolute h-0.5 w-5 rounded-full transition-all duration-300 ease-out ${isTransparent ? 'bg-white' : 'bg-slate-700'
+                  } ${isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}
+              />
+              <span
+                className={`absolute h-0.5 w-5 rounded-full transition-all duration-300 ease-out ${isTransparent ? 'bg-white' : 'bg-slate-700'
+                  } ${isMenuOpen ? '-rotate-45' : 'translate-y-1.5'}`}
+              />
+            </div>
           </button>
         </div>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden max-h-[calc(100vh-140px)] overflow-y-auto border-t bg-white shadow-lg">
+      {/* Mobile Menu with slide animation */}
+      <div
+        className={`md:hidden overflow-hidden ${isMenuOpen ? 'mobile-menu-open' : 'mobile-menu-closed pointer-events-none'
+          }`}
+        style={{ display: isMenuOpen ? 'block' : undefined }}
+      >
+        <div className="border-t bg-white dark:bg-zinc-900 shadow-lg">
           <div className="px-4 py-3">
-            {["India", "Nepal", "Sri Lanka", "Bhutan", "Maldives"].map((country) => (
-              <div key={country} className="border-b border-slate-100 last:border-0">
+            {["India", "Nepal", "Sri Lanka", "Bhutan", "Maldives"].map((country, index) => (
+              <div
+                key={country}
+                className="border-b border-slate-100 dark:border-zinc-800 last:border-0"
+              >
                 <Link
                   href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex w-full items-center justify-between py-4 text-left"
+                  className="mobile-menu-item flex w-full items-center justify-between py-4 text-left"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <span className="text-base font-semibold text-slate-900">{country}</span>
+                  <span className="text-base font-semibold text-slate-900 dark:text-white">{country}</span>
                 </Link>
               </div>
             ))}
 
-            <div className="py-4">
+            {/* Pay Now and Get Quote buttons */}
+            <div
+              className="mobile-menu-item flex gap-3 pt-4"
+              style={{ animationDelay: '250ms' }}
+            >
+              <Link
+                href="/payment"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex-1 h-11 flex items-center justify-center font-bold rounded-lg bg-black text-white hover:bg-zinc-800 transition-colors cursor-pointer text-sm"
+              >
+                Pay Now
+              </Link>
               <Button
                 onClick={() => {
                   setIsMenuOpen(false)
                   setIsBookingOpen(true)
                 }}
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
+                className="flex-1 h-11 bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 cursor-pointer text-sm font-bold rounded-lg shadow-sm"
               >
-                Book Now
+                Get Quote
               </Button>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </header>
   )
 }
 
 export default Header
-
-

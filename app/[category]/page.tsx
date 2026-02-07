@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { useParams, useSearchParams, useRouter } from "next/navigation"
+import { useParams, useSearchParams, useRouter, notFound } from "next/navigation"
 import {
     Search,
     CloudSun,
@@ -63,6 +63,7 @@ export default function CategoryPage() {
     const [packages, setPackages] = useState<TourPackage[]>([])
     const [category, setCategory] = useState<Category | null>(null)
     const [loading, setLoading] = useState(true)
+    const [isNotFound, setIsNotFound] = useState(false)
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
     const [pagination, setPagination] = useState({
         total: 0,
@@ -84,19 +85,23 @@ export default function CategoryPage() {
     const displayName = getDisplayName();
 
     const fetchPackages = useCallback(async (page: number) => {
+        if (isNotFound) return;
         setLoading(true)
         try {
-            // Fetch category info - wrapped in personal try-catch to prevent crashing on missing slugs
+            // Fetch category info
             if (!category || category.slug !== categorySlug) {
                 try {
                     const catRes = await publicAPI.getCategoryBySlug(categorySlug)
-                    if (catRes && catRes.success) {
+                    if (catRes && catRes.success && catRes.data) {
                         setCategory(catRes.data)
+                    } else {
+                        setIsNotFound(true)
+                        return
                     }
                 } catch (catError: any) {
-                    // Use warn instead of error to avoid triggering the Next.js dev overlay for expected 404s
-                    console.warn("Category metadata not found in DB, using fallback name:", categorySlug)
-                    setCategory({ _id: "", name: categorySlug, slug: categorySlug })
+                    console.warn("Category not found:", categorySlug)
+                    setIsNotFound(true)
+                    return
                 }
             }
 
@@ -121,11 +126,15 @@ export default function CategoryPage() {
         } finally {
             setLoading(false)
         }
-    }, [categorySlug, category])
+    }, [categorySlug, category, isNotFound])
 
     useEffect(() => {
         fetchPackages(currentPage)
     }, [currentPage, fetchPackages])
+
+    if (isNotFound) {
+        notFound()
+    }
 
     const handlePageChange = (newPage: number) => {
         if (newPage < 1 || newPage > pagination.pages) return
@@ -216,13 +225,13 @@ export default function CategoryPage() {
                         <div className="mt-6 pt-6 border-t border-gray-200">
                             <div className="relative mb-4">
                                 <Select defaultValue="recommended">
-                                    <SelectTrigger className="w-full bg-white border-gray-200 text-[#0d1b10] h-11 focus:ring-[#e42b28]">
+                                    <SelectTrigger className="w-full bg-white border-gray-200 text-[#0d1b10] h-11 focus:ring-[#9f0712] cursor-pointer">
                                         <SelectValue placeholder="Sort by" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="recommended">Sort by Recommended</SelectItem>
-                                        <SelectItem value="price-low">Price: Low to High</SelectItem>
-                                        <SelectItem value="price-high">Price: High to Low</SelectItem>
+                                        <SelectItem value="recommended" className="cursor-pointer">Sort by Recommended</SelectItem>
+                                        <SelectItem value="price-low" className="cursor-pointer">Price: Low to High</SelectItem>
+                                        <SelectItem value="price-high" className="cursor-pointer">Price: High to Low</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -277,7 +286,7 @@ export default function CategoryPage() {
                                 </div>
                             ) : packages.length > 0 ? (
                                 packages.map((pkg) => (
-                                    <div key={pkg._id} className="group bg-white rounded-md border border-gray-200 hover:border-[#e42b28]/30 transition-all duration-300 overflow-hidden flex flex-col md:flex-row h-auto md:h-64 shadow-sm hover:shadow-md">
+                                    <div key={pkg._id} className="group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden flex flex-col md:flex-row h-auto md:h-64">
                                         {/* Image */}
                                         <div className="w-full md:w-2/5 relative overflow-hidden h-48 md:h-auto">
                                             <div
@@ -342,7 +351,7 @@ export default function CategoryPage() {
                                                 </div>
                                                 <Link
                                                     href={`/${categorySlug}/${pkg.slug}`}
-                                                    className="px-6 py-2.5 rounded-md bg-[#0d1b10] text-white text-sm font-bold hover:bg-[#e42b28] transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2"
+                                                    className="px-6 py-2.5 rounded-md bg-[#0d1b10] text-white text-sm font-bold hover:bg-[#9f0712] transition-all duration-200 flex items-center gap-2"
                                                 >
                                                     View Details
                                                     <ArrowRight className="w-4 h-4" />
@@ -409,10 +418,10 @@ export default function CategoryPage() {
                         <div className="flex gap-6 pb-4">
                             {/* Static placeholders as requested */}
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex-shrink-0 w-72 sm:w-80 group bg-white rounded-md border border-gray-200 hover:border-[#e42b28]/30 transition-all duration-300 overflow-hidden">
+                                <div key={i} className="flex-shrink-0 w-72 sm:w-80 group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden">
                                     <div className="relative h-44 overflow-hidden">
                                         <div
-                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
                                             style={{
                                                 backgroundImage: `url('https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80')`,
                                             }}
@@ -427,7 +436,7 @@ export default function CategoryPage() {
                                                 <p className="text-xs text-gray-400">Starting from</p>
                                                 <p className="text-xl font-bold text-[#e42b28]">₹85,000</p>
                                             </div>
-                                            <button className="px-5 py-2.5 rounded-md bg-[#0d1b10] text-white text-sm font-bold hover:bg-[#e42b28] transition-all duration-200">
+                                            <button className="px-5 py-2.5 rounded-md bg-[#0d1b10] text-white text-sm font-bold hover:bg-[#9f0712] transition-all duration-200">
                                                 View Details
                                             </button>
                                         </div>

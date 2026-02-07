@@ -194,7 +194,7 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                                                         <Button
                                                             variant={"outline"}
                                                             className={cn(
-                                                                "w-full justify-start text-left font-medium px-4 py-6 bg-gray-50 border-gray-200 hover:bg-white hover:border-primary/50 text-slate-900 shadow-none cursor-pointer",
+                                                                "w-full justify-start text-left font-medium px-4 py-7 bg-gray-50 border-gray-200 hover:bg-white hover:border-primary/50 text-slate-900 shadow-none cursor-pointer text-base rounded-xl",
                                                                 !date && "text-muted-foreground"
                                                             )}
                                                         >
@@ -217,9 +217,9 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                                             <div className="space-y-1.5">
                                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Guests</label>
                                                 <Select>
-                                                    <SelectTrigger className="w-full px-4 py-6 bg-gray-50 border-gray-200 hover:bg-white hover:border-primary/50 text-slate-900 shadow-none cursor-pointer">
+                                                    <SelectTrigger className="w-full px-4 py-7 bg-gray-50 border-gray-200 hover:bg-white hover:border-primary/50 text-slate-900 shadow-none cursor-pointer text-base rounded-xl">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="text-slate-400">👥</span>
+                                                            <span className="text-xl">👥</span>
                                                             <SelectValue placeholder="2 Adults" />
                                                         </div>
                                                     </SelectTrigger>
@@ -289,6 +289,29 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                     },
                 ]}
             />
+            {/* Sticky Mobile Booking Bar */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-gray-200 p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom duration-500">
+                <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+                    <div>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Starting from</p>
+                        <p className="text-xl font-black text-[#df2c28]">
+                            ${(packageData.startingPrice || packageData.basePrice || 0).toLocaleString('en-US')}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            const formElement = document.querySelector('form');
+                            if (formElement) {
+                                formElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }}
+                        className="flex-1 py-3.5 px-6 bg-primary text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.97]"
+                    >
+                        Book Now
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }
