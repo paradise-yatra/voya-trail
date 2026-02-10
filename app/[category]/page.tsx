@@ -38,11 +38,17 @@ interface TourPackage {
     _id: string
     title: string
     slug: string
-    durationDays: number
-    durationNights: number
-    maxPeople: number
-    basePrice: number
-    priceUnit: string
+    duration?: {
+        days: number
+        nights: number
+    }
+    durationDays?: number
+    durationNights?: number
+    minPeople?: number
+    maxPeople?: number
+    basePrice?: number
+    startingPrice?: number
+    priceUnit?: string
     mainImage: string
     highlights?: string[]
 }
@@ -143,12 +149,15 @@ export default function CategoryPage() {
     }
 
     // Formatting price
-    const formatPrice = (price: number) => {
+    const formatPrice = (price: any) => {
+        const numPrice = parseFloat(price);
+        if (isNaN(numPrice)) return "$0";
+
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             maximumFractionDigits: 0
-        }).format(price)
+        }).format(numPrice)
     }
 
     return (
@@ -307,11 +316,13 @@ export default function CategoryPage() {
                                                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                                                     <div className="flex items-center gap-1">
                                                         <Clock className="w-4 h-4" />
-                                                        {pkg.durationNights}N / {pkg.durationDays}D
+                                                        {(pkg.duration?.nights ?? pkg.durationNights ?? 0)}N / {(pkg.duration?.days ?? pkg.durationDays ?? 0)}D
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Users className="w-4 h-4" />
-                                                        Max {pkg.maxPeople}
+                                                        {pkg.minPeople && pkg.maxPeople
+                                                            ? `${pkg.minPeople}-${pkg.maxPeople}`
+                                                            : (pkg.maxPeople || 12)} People
                                                     </div>
                                                 </div>
 
@@ -323,7 +334,7 @@ export default function CategoryPage() {
                                                     <div className="flex flex-wrap gap-2">
                                                         {pkg.highlights && pkg.highlights.length > 0 ? (
                                                             pkg.highlights.map((hl, idx) => (
-                                                                <span key={idx} className="text-[10px] font-medium text-[#0d1b10] bg-white px-2 py-0.5 rounded border border-gray-100 uppercase tracking-tighter">
+                                                                <span key={idx} className="text-xs font-medium text-[#0d1b10] bg-white px-2 py-1 rounded border border-gray-100">
                                                                     {hl}
                                                                 </span>
                                                             ))
@@ -345,8 +356,8 @@ export default function CategoryPage() {
                                                 <div>
                                                     <p className="text-xs text-gray-400">Starting from</p>
                                                     <p className="text-xl font-bold text-[#e42b28]">
-                                                        {formatPrice(pkg.basePrice)}{" "}
-                                                        <span className="text-sm font-normal text-gray-500">/ {pkg.priceUnit}</span>
+                                                        {formatPrice(pkg.startingPrice || pkg.basePrice || 0)}{" "}
+                                                        <span className="text-sm font-normal text-gray-500">/ {pkg.priceUnit || 'per person'}</span>
                                                     </p>
                                                 </div>
                                                 <Link

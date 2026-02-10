@@ -31,6 +31,13 @@ import {
     Ticket,
     ArrowRight,
     HelpCircle,
+    Bus,
+    Plane,
+    Train,
+    Coffee,
+    Sun,
+    Moon,
+    Camera
 } from "lucide-react"
 import { HeroGallery } from "@/components/package/HeroGallery"
 import { PackageContent } from "@/components/package/PackageContent"
@@ -79,36 +86,50 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
 
     const images = getImages();
 
-    // Map amenities/highlights to the expected format
-    const amenities = (packageData.amenities || packageData.highlights || []).map((item: string) => ({
-        icon: Star, // Default icon
-        title: item,
-        description: "Included in your package",
-    }));
+    // Map amenities to their correct icons and labels
+    const amenityIconMap: Record<string, any> = {
+        'Hotel': Hotel,
+        'Private Transfers': Car,
+        'Luxury 5 Star Hotel': Star,
+        'Flight Tickets': Plane,
+        'Train Tickets': Train,
+        'Bus Tickets': Bus,
+        'Breakfast': Coffee,
+        'Lunch': Sun,
+        'Dinner': Moon,
+        'Sightseeing': Camera,
+        'Entrance Fees': Ticket,
+    };
 
-    // If no amenities found, provide some defaults based on the reference design
-    const displayAmenities = amenities.length > 0 ? amenities : [
-        {
-            icon: Hotel,
-            title: "Luxury Stays",
-            description: "Handpicked heritage and 5-star accommodations.",
-        },
-        {
-            icon: Car,
-            title: "Private Transport",
-            description: "AC vehicle for all transfers and sightseeing.",
-        },
-        {
-            icon: UtensilsCrossed,
-            title: "Daily Breakfast",
-            description: "Gourmet breakfast included at all hotels.",
-        },
-        {
-            icon: Ticket,
-            title: "Domestic Flights",
-            description: "Included domestic flights where applicable.",
-        },
-    ];
+    const packageAmenities = packageData.amenityIds || packageData.amenities || [];
+    const displayAmenities = packageAmenities.length > 0
+        ? packageAmenities.map((item: string) => ({
+            icon: amenityIconMap[item] || Star,
+            title: item,
+            description: "Included in your package",
+        }))
+        : [
+            {
+                icon: Hotel,
+                title: "Luxury Stays",
+                description: "Handpicked heritage and 5-star accommodations.",
+            },
+            {
+                icon: Car,
+                title: "Private Transport",
+                description: "AC vehicle for all transfers and sightseeing.",
+            },
+            {
+                icon: UtensilsCrossed,
+                title: "Daily Breakfast",
+                description: "Gourmet breakfast included at all hotels.",
+            },
+            {
+                icon: Ticket,
+                title: "Domestic Flights",
+                description: "Included domestic flights where applicable.",
+            },
+        ];
 
     // Format category name for display (e.g., "kerala-backwaters" -> "Kerala Backwaters")
     const formatCategoryName = (cat: string) => {
@@ -132,7 +153,7 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                             : (packageData.location || "India")
                     }
                     duration={`${packageData.duration?.days || packageData.durationDays || 0} Days, ${packageData.duration?.nights || packageData.durationNights || 0} Nights`}
-                    people={`2-${packageData.maxPeople || 12} People`}
+                    people={`${packageData.minPeople || 2}-${packageData.maxPeople || 12} People`}
                     breadcrumbs={[
                         { label: "Home", href: "/" },
                         { label: categoryName, href: `/${category}` },
@@ -148,11 +169,11 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                             <PackageContent
                                 overview={{
                                     title: "Experience Overview",
-                                    description: packageData.overviewDescription || packageData.description || "",
+                                    description: packageData.overviewDescription || packageData.overview?.description || packageData.description || "",
                                     duration: `${packageData.duration?.days || packageData.durationDays || 0} Days`,
-                                    groupSize: `Max ${packageData.maxPeople || 12} Guests`,
-                                    guide: "Private Expert",
-                                    languages: "English, French",
+                                    groupSize: packageData.overview?.groupSize || `${packageData.minPeople || 2}-${packageData.maxPeople || 12} Guests`,
+                                    guide: packageData.overview?.guide || packageData.guideType || "Private Expert",
+                                    languages: packageData.overview?.languages || (Array.isArray(packageData.languages) ? packageData.languages.join(", ") : packageData.languages) || "English",
                                 }}
                                 amenities={displayAmenities}
                                 roadmap={(packageData.itinerary || []).map((day: any) => ({
@@ -166,7 +187,7 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                                     } : undefined,
                                     images: (day.images && day.images.length > 0)
                                         ? day.images.map((img: any) => getUrl(img))
-                                        : [images.main],
+                                        : [],
                                 }))}
                             />
                         </div>

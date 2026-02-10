@@ -115,20 +115,20 @@ export function PackageContent({
                 <h3 className="text-xl font-bold text-[#8B0000] mb-6">
                     Included Amenities
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-4">
                     {amenities.map((amenity, index) => (
                         <div
                             key={index}
-                            className="flex items-start gap-4 p-4 rounded-xl bg-white border border-[#e2e8f0]"
+                            className="flex items-center md:items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-white border border-[#e2e8f0]"
                         >
-                            <div className="bg-primary/10 p-2.5 rounded-lg text-primary">
-                                <amenity.icon className="w-5 h-5" />
+                            <div className="bg-primary/10 p-2 md:p-2.5 rounded-lg text-primary shrink-0">
+                                <amenity.icon className="w-4 h-4 md:w-5 h-5" />
                             </div>
-                            <div>
-                                <h4 className="text-slate-900 font-semibold mb-1">
+                            <div className="min-w-0">
+                                <h4 className="text-slate-900 font-semibold text-xs md:text-base leading-tight">
                                     {amenity.title}
                                 </h4>
-                                <p className="text-slate-600 text-sm">{amenity.description}</p>
+                                <p className="text-slate-600 text-[10px] md:text-sm hidden md:block">{amenity.description}</p>
                             </div>
                         </div>
                     ))}
