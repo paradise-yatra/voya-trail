@@ -375,6 +375,8 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+  /* Offset for fixed header */
 }
 
 @layer components {

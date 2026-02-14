@@ -45,3 +45,6 @@ const TourCategory = mongoose.model<ITourCategory>(
 export default TourCategory;
 
 
+
+
+

@@ -94,3 +94,6 @@ export const updateAmenity = async (req: AuthRequest, res: Response): Promise<vo
 };
 
 
+
+
+

@@ -5,6 +5,8 @@ import PackageDetailPageClient from "@/components/package/PackageDetailPageClien
 
 interface Props {
     params: Promise<{
+        category: string;
+        destination: string;
         slug: string;
     }>;
 }
@@ -36,12 +38,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: "India Tour Details | Wanderlust",
+        title: "Package Details | Wanderlust",
     };
 }
 
 export default async function Page({ params }: Props) {
-    const { slug } = await params;
+    const { category, destination, slug } = await params;
 
     try {
         const res = await publicAPI.getPackageBySlug(slug);
@@ -50,7 +52,7 @@ export default async function Page({ params }: Props) {
             notFound();
         }
 
-        return <PackageDetailPageClient packageData={res.data} category="india-tours" slug={slug} />;
+        return <PackageDetailPageClient packageData={res.data} category={category} destination={destination} slug={slug} />;
     } catch (error) {
         console.error("Error fetching package details:", error);
         notFound();

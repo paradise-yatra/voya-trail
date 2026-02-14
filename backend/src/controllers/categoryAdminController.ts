@@ -3,14 +3,18 @@ import TourCategory from '../models/TourCategory';
 import TourPackage from '../models/TourPackage';
 import { AuthRequest } from '../middleware/auth';
 
+const normalizeSlug = (value: string): string =>
+  value.trim().toLowerCase().replace(/^\/+|\/+$/g, '');
+
 /**
  * POST /api/admin/categories
  */
 export const createCategory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, slug, description } = req.body;
+    const normalizedSlug = typeof slug === 'string' ? normalizeSlug(slug) : '';
 
-    if (!name || !slug) {
+    if (!name || !normalizedSlug) {
       res.status(400).json({
         success: false,
         message: 'Name and slug are required',
@@ -18,7 +22,9 @@ export const createCategory = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const existing = await TourCategory.findOne({ slug });
+    const existing = await TourCategory.findOne({
+      slug: { $in: [normalizedSlug, `/${normalizedSlug}`] },
+    });
     if (existing) {
       res.status(409).json({
         success: false,
@@ -29,7 +35,7 @@ export const createCategory = async (req: AuthRequest, res: Response): Promise<v
 
     const category = await TourCategory.create({
       name,
-      slug,
+      slug: normalizedSlug,
       description,
     });
 
@@ -57,7 +63,10 @@ export const listCategoriesAdmin = async (
     const categories = await TourCategory.find({}).sort({ name: 1 }).lean();
 
     const data = await Promise.all(categories.map(async (cat) => {
-      const count = await TourPackage.countDocuments({ category: cat._id });
+      const count = await TourPackage.countDocuments({
+        category: cat._id,
+        status: 'published',
+      });
       return { ...cat, packageCount: count };
     }));
 
@@ -110,11 +119,20 @@ export const updateCategory = async (req: AuthRequest, res: Response): Promise<v
   try {
     const { id } = req.params;
     const { name, slug, description, isActive } = req.body;
+    const normalizedSlug = typeof slug === 'string' ? normalizeSlug(slug) : undefined;
 
-    if (slug) {
+    if (slug && !normalizedSlug) {
+      res.status(400).json({
+        success: false,
+        message: 'Slug cannot be empty',
+      });
+      return;
+    }
+
+    if (normalizedSlug) {
       const existing = await TourCategory.findOne({
         _id: { $ne: id },
-        slug,
+        slug: { $in: [normalizedSlug, `/${normalizedSlug}`] },
       });
       if (existing) {
         res.status(409).json({
@@ -125,11 +143,31 @@ export const updateCategory = async (req: AuthRequest, res: Response): Promise<v
       }
     }
 
-    const category = await TourCategory.findByIdAndUpdate(
-      id,
-      { name, slug, description, isActive },
-      { new: true, runValidators: true }
-    );
+    const updatePayload: {
+      name?: string;
+      slug?: string;
+      description?: string;
+      isActive?: boolean;
+    } = {};
+
+    if (typeof name === 'string') {
+      updatePayload.name = name;
+    }
+    if (typeof description === 'string') {
+      updatePayload.description = description;
+    }
+    if (typeof isActive === 'boolean') {
+      updatePayload.isActive = isActive;
+    }
+
+    if (normalizedSlug) {
+      updatePayload.slug = normalizedSlug;
+    }
+
+    const category = await TourCategory.findByIdAndUpdate(id, updatePayload, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!category) {
       res.status(404).json({
@@ -192,5 +230,8 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
     });
   }
 };
+
+
+
 
 

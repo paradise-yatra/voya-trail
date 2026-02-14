@@ -6,6 +6,9 @@ import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import tourRoutes from './routes/tourRoutes';
 import adminTourRoutes from './routes/adminTourRoutes';
+import publicCatalogRoutes from './routes/publicCatalogRoutes';
+
+// Force restart to pick up new routes
 
 // Load environment variables
 dotenv.config();
@@ -34,6 +37,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
 app.use('/api/admin', adminTourRoutes);
+app.use('/api', publicCatalogRoutes);
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {

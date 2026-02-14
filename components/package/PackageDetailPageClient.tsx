@@ -46,10 +46,11 @@ import { RelatedTours } from "@/components/package/RelatedTours"
 interface PackageDetailPageClientProps {
     packageData: any;
     category: string;
+    destination?: string;
     slug: string;
 }
 
-export default function PackageDetailPageClient({ packageData, category, slug }: PackageDetailPageClientProps) {
+export default function PackageDetailPageClient({ packageData, category, destination, slug }: PackageDetailPageClientProps) {
     const [date, setDate] = React.useState<Date>()
 
     // Helper to safely get images
@@ -157,6 +158,7 @@ export default function PackageDetailPageClient({ packageData, category, slug }:
                     breadcrumbs={[
                         { label: "Home", href: "/" },
                         { label: categoryName, href: `/${category}` },
+                        ...(destination ? [{ label: destination.charAt(0).toUpperCase() + destination.slice(1).replace(/-/g, ' '), href: `/${category}/${destination}` }] : []),
                         { label: packageData.title },
                     ]}
                 />

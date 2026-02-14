@@ -1,9 +1,12 @@
 "use client"
 
+import React from "react"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Mail, Instagram, Facebook, Youtube } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { toast } from "sonner"
 
 export function Footer() {
   const pathname = usePathname()
@@ -14,9 +17,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col">
         {/* 1. Brand Header */}
         <div className="flex justify-center mb-16 md:mb-24">
-          <h1 className="text-5xl md:text-7xl lg:text-[80px] font-medium tracking-tight text-primary dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
+          <div className="text-[75px] font-medium tracking-tight text-primary dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
             Voya Trail
-          </h1>
+          </div>
         </div>
 
         {/* 2. Navigation Grid */}
@@ -28,34 +31,34 @@ export function Footer() {
             </h3>
             <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
               <Link
-                href="#"
+                href="/india-tours"
                 className="hover:text-primary transition-all duration-300"
               >
-                Rajasthan
+                Tours India
               </Link>
               <Link
-                href="#"
+                href="/nepal-tours"
                 className="hover:text-primary transition-all duration-300"
               >
-                Kerala Backwaters
+                Tours Nepal
               </Link>
               <Link
-                href="#"
+                href="/bhutan-tours"
                 className="hover:text-primary transition-all duration-300"
               >
-                Goa Beaches
+                Tours Bhutan
               </Link>
               <Link
-                href="#"
+                href="/bali-tours"
                 className="hover:text-primary transition-all duration-300"
               >
-                The Himalayas
+                Tours Bali
               </Link>
               <Link
-                href="#"
+                href="/thailand-tours"
                 className="hover:text-primary transition-all duration-300"
               >
-                Golden Triangle
+                Tours Thailand
               </Link>
             </nav>
           </div>
@@ -169,16 +172,52 @@ export function Footer() {
                 <span className="group-hover:underline">sales@voyatrail.com</span>
               </a>
               {/* Minimalist Newsletter Input integrated */}
-              <form className="mt-6 w-full max-w-[240px]">
+              <form
+                className="mt-6 w-full max-w-[240px]"
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  const form = e.currentTarget
+                  const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+                  const email = emailInput?.value
+
+                  if (!email) {
+                    toast.error("Please enter your email address")
+                    return
+                  }
+
+                  const toastId = toast.loading("Subscribing...")
+
+                  try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/newsletter/public`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email, source: 'footer' }),
+                    })
+
+                    const data = await response.json()
+
+                    if (data.success) {
+                      toast.success(data.message, { id: toastId })
+                      form.reset()
+                    } else {
+                      toast.error(data.error || "Failed to subscribe", { id: toastId })
+                    }
+                  } catch (error) {
+                    console.error("Newsletter error", error)
+                    toast.error("Something went wrong. Please try again.", { id: toastId })
+                  }
+                }}
+              >
                 <div className="flex border-b border-[#4c669a] pb-1">
                   <input
                     className="bg-transparent border-none p-0 text-sm w-full placeholder:text-[#4c669a]/70 focus:ring-0 text-foreground dark:text-white outline-none"
                     placeholder="Join our newsletter"
                     type="email"
+                    required
                   />
                   <button
                     className="text-xs uppercase font-bold tracking-wider text-primary"
-                    type="button"
+                    type="submit"
                   >
                     Join
                   </button>

@@ -108,7 +108,7 @@ export const adminToursAPI = {
 
 // Public API
 export const publicAPI = {
-    getPackages: async (params: { category?: string; page?: number; limit?: number }) => {
+    getPackages: async (params: { category?: string; location?: string; excludeCategory?: string; page?: number; limit?: number }) => {
         const response = await apiClient.get('/api/packages/public', { params });
         return response.data;
     },
@@ -118,6 +118,10 @@ export const publicAPI = {
     },
     getCategoryBySlug: async (slug: string) => {
         const response = await apiClient.get(`/api/tour-categories/public/slug/${slug}`);
+        return response.data;
+    },
+    search: async (q: string) => {
+        const response = await apiClient.get('/api/packages/search', { params: { q } });
         return response.data;
     }
 };

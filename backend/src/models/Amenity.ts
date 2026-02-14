@@ -34,3 +34,6 @@ const Amenity = mongoose.model<IAmenity>('Amenity', amenitySchema);
 export default Amenity;
 
 
+
+
+

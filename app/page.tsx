@@ -1,8 +1,11 @@
 "use client"
 import React, { useRef, useState } from "react"
 import Link from "next/link"
-import { Search, PlayCircle, ChevronLeft, ChevronRight, ChevronDown, Star } from "lucide-react"
+import { Search, PlayCircle, ChevronLeft, ChevronRight, ChevronDown, Star, Loader2, MapPin, Box, Compass } from "lucide-react"
+import { toast } from "sonner"
 
+
+import { publicAPI } from "@/lib/api"
 
 export default function Home() {
   const journeysRef1 = useRef<HTMLDivElement | null>(null)
@@ -10,17 +13,126 @@ export default function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [direction, setDirection] = useState<"left" | "right">("right")
   const [openFaq, setOpenFaq] = useState<string | null>(null)
+  const [signaturePackages, setSignaturePackages] = useState<any[]>([])
+  const [exclusivePackages, setExclusivePackages] = useState<any[]>([])
   const faq1Ref = useRef<HTMLDivElement | null>(null)
   const faq2Ref = useRef<HTMLDivElement | null>(null)
   const faq3Ref = useRef<HTMLDivElement | null>(null)
   const faq4Ref = useRef<HTMLDivElement | null>(null)
   const faq5Ref = useRef<HTMLDivElement | null>(null)
   const faq6Ref = useRef<HTMLDivElement | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<{
+    packages: any[],
+    categories: any[],
+    destinations: any[]
+  }>({ packages: [], categories: [], destinations: [] })
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
+  // Click outside listener for search dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Debounced Search Effect
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.trim().length > 1) {
+        setIsSearching(true)
+        try {
+          const res = await publicAPI.search(searchQuery)
+          if (res && res.success) {
+            setSearchResults(res.data)
+            setShowSearchDropdown(true)
+          }
+        } catch (error) {
+          console.error("Search failed:", error)
+        } finally {
+          setIsSearching(false)
+        }
+      } else {
+        setShowSearchDropdown(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery])
+
+  // Fetch packages on mount
+  React.useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        // Signature Escapes - India Packages
+        // Try 'india' slug first, or 'india-tour-packages'
+        let indiaRes = await publicAPI.getPackages({ category: 'india', limit: 10 })
+        if (!indiaRes.data || indiaRes.data.length === 0) {
+          indiaRes = await publicAPI.getPackages({ category: 'india-tours', limit: 10 })
+        }
+        if (!indiaRes.data || indiaRes.data.length === 0) {
+          indiaRes = await publicAPI.getPackages({ category: 'india-tour-packages', limit: 10 })
+        }
+        setSignaturePackages(indiaRes.data || [])
+
+        // Exclusive Journeys - Non-India Packages (using the slug that worked or 'india' as fallback for exclusion)
+        const excludeSlug = (indiaRes.data && indiaRes.data.length > 0 && indiaRes.data[0].category?.slug) ? indiaRes.data[0].category.slug : 'india'
+        const exclusiveRes = await publicAPI.getPackages({ excludeCategory: excludeSlug, limit: 10 })
+        setExclusivePackages(exclusiveRes.data || [])
+      } catch (error) {
+        console.error("Failed to fetch packages:", error)
+      }
+    }
+
+    fetchPackages()
+  }, [])
 
   const getFaqHeight = (ref: React.RefObject<HTMLDivElement | null>, id: string) => {
     if (openFaq !== id) return "0px"
     const measured = ref.current?.scrollHeight || 0
     return measured > 0 ? `${measured}px` : "auto"
+  }
+
+  const handleNewsletterSubmit = async (e: React.FormEvent<HTMLFormElement>, source: string) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+    const email = emailInput?.value
+
+    if (!email) {
+      toast.error("Please enter your email address")
+      return
+    }
+
+    const toastId = toast.loading("Subscribing...")
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/newsletter/public`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        toast.success(data.message, { id: toastId })
+        form.reset()
+      } else {
+        toast.error(data.error || "Failed to subscribe", { id: toastId })
+      }
+    } catch (error) {
+      console.error("Newsletter error", error)
+      toast.error("Something went wrong. Please try again.", { id: toastId })
+    }
   }
 
   const testimonials = [
@@ -85,7 +197,7 @@ export default function Home() {
         className="relative flex min-h-[100svh] flex-col items-center justify-center gap-4 sm:gap-6 md:gap-8 bg-cover bg-center bg-no-repeat px-4 py-20 sm:py-10 text-center text-white"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%), url("/hero-luxury-landscape.png")',
+            'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%), url("/Home/hero-section-background.webp")',
         }}
         aria-label="A luxury glass villa in the mountains at blue hour with twilight sky"
       >
@@ -100,24 +212,130 @@ export default function Home() {
           </div>
 
           <div className="w-full max-w-4xl flex flex-col md:flex-row items-center gap-3 sm:gap-4">
-            {/* Search Bar - Visible on all devices */}
-            <label className="flex h-12 sm:h-14 w-full md:flex-1 flex-col">
-              <div className="flex h-full w-full items-stretch rounded-full border border-white/30 bg-white/20 backdrop-blur-sm">
-                <div className="flex items-center justify-center pl-4 text-white">
-                  <Search size={18} className="sm:w-5 sm:h-5" />
+            {/* Search Bar - Functional */}
+            <div className="flex h-12 sm:h-14 w-full md:flex-1 flex-col relative z-50" ref={searchContainerRef}>
+              <div className={`flex h-full w-full items-stretch rounded-full border transition-all duration-300 ${showSearchDropdown ? "bg-white border-white text-black ring-2 ring-primary/20" : "border-white/30 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"}`}>
+                <div className={`flex items-center justify-center pl-4 ${showSearchDropdown ? "text-gray-400" : "text-white"}`}>
+                  {isSearching ? <Loader2 size={18} className="animate-spin text-[#e42b28]" /> : <Search size={18} className="sm:w-5 sm:h-5" />}
                 </div>
                 <input
-                  className="form-input h-full w-full min-w-0 flex-1 resize-none border-0 bg-transparent px-2 text-sm sm:text-base font-normal leading-normal text-white placeholder:text-white/70 focus:outline-0 focus:ring-0"
-                  placeholder="Search destinations, hotels, or experiences"
+                  className={`form-input h-full w-full min-w-0 flex-1 resize-none border-0 bg-transparent px-3 text-sm sm:text-base font-normal leading-normal placeholder:text-opacity-70 focus:outline-0 focus:ring-0 ${showSearchDropdown ? "text-black placeholder:text-gray-400" : "text-white placeholder:text-white"}`}
+                  placeholder="Search destinations (e.g. Kerala), or categories..."
                   aria-label="Search destinations, hotels, or experiences"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim().length > 1) setShowSearchDropdown(true)
+                  }}
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(""); setShowSearchDropdown(false); }}
+                    className={`pr-4 ${showSearchDropdown ? "text-gray-400 hover:text-gray-600" : "text-white/70 hover:text-white"}`}
+                  >
+                    <span className="sr-only">Clear</span>
+                    ×
+                  </button>
+                )}
               </div>
-            </label>
+
+              {/* Dropdown Results */}
+              {showSearchDropdown && (
+                <div className="absolute top-full mt-3 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden text-left animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+
+                    {/* No Results */}
+                    {searchResults.packages.length === 0 && searchResults.categories.length === 0 && searchResults.destinations.length === 0 && !isSearching && (
+                      <div className="p-8 text-center text-gray-500">
+                        <p>No results found for "{searchQuery}"</p>
+                      </div>
+                    )}
+
+                    {/* Packages */}
+                    {searchResults.packages.length > 0 && (
+                      <div className="py-3">
+                        <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                          <Compass className="w-3 h-3" /> Packages
+                        </h4>
+                        <ul>
+                          {searchResults.packages.map((pkg: any) => (
+                            <li key={pkg._id || pkg.slug}>
+                              <Link
+                                href={`/${pkg.categorySlug}/${(pkg.location || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
+                                className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors group"
+                              >
+                                <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 relative">
+                                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${pkg.mainImage})` }} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-gray-800 truncate group-hover:text-[#e42b28] transition-colors">{pkg.title}</p>
+                                  <p className="text-xs text-gray-500 truncate capitalize">
+                                    {pkg.location || 'India'} • {pkg.durationNights}N/{pkg.durationDays}D
+                                  </p>
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Destinations */}
+                    {searchResults.destinations.length > 0 && (
+                      <div className="py-3 border-t border-gray-100">
+                        <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                          <MapPin className="w-3 h-3" /> Destinations
+                        </h4>
+                        <ul>
+                          {searchResults.destinations.map((dest: any, idx) => (
+                            <li key={idx}>
+                              <Link
+                                href={`/${dest.categorySlug}/${dest.slug}`}
+                                className="block px-5 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                              >
+                                <span className="font-medium text-gray-800 capitalize group-hover:text-[#e42b28] transition-colors">{dest.name}</span>
+                                <span className="text-xs text-gray-400 capitalize bg-gray-100 px-2 py-0.5 rounded-full">{dest.categorySlug.replace(/-/g, ' ')}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Categories */}
+                    {searchResults.categories.length > 0 && (
+                      <div className="py-3 border-t border-gray-100">
+                        <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                          <Box className="w-3 h-3" /> Categories
+                        </h4>
+                        <ul>
+                          {searchResults.categories.map((cat: any, idx) => (
+                            <li key={idx}>
+                              <Link
+                                href={`/${cat.slug}`}
+                                className="block px-5 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                              >
+                                <span className="font-medium text-gray-800 capitalize group-hover:text-[#e42b28] transition-colors">{cat.name}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  {/* Footer */}
+                  <div className="bg-gray-50 px-5 py-3 text-xs text-gray-400 border-t border-gray-100 flex justify-between">
+                    <span>Press Enter to search all results</span>
+                    <span>Esc to close</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* CTA Buttons - Side by side on mobile */}
             <div className="flex w-full md:w-auto flex-row items-center justify-center gap-3">
               <Link
-                href="/packages"
+                href="#signature-escapes"
                 className="flex h-11 sm:h-12 flex-1 md:flex-initial min-w-0 md:min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary px-4 sm:px-8 text-[13px] sm:text-base font-bold leading-normal tracking-[0.015em] text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
                 Explore Packages
@@ -144,8 +362,8 @@ export default function Home() {
 
 
 
-      {/* Exclusive Journeys Section (Duplicate with variations) */}
-      <section className="flex justify-center py-16 sm:py-24 bg-background">
+      {/* Signature Escapes Section */}
+      <section id="signature-escapes" className="flex justify-center py-16 sm:py-24 bg-background">
         <div className="flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex items-end justify-between">
             <div>
@@ -158,7 +376,7 @@ export default function Home() {
             </div>
             <div className="hidden sm:flex items-center gap-3">
               <Link
-                href="/packages"
+                href="/india-tours"
                 className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
               >
                 View All Packages
@@ -184,131 +402,54 @@ export default function Home() {
 
           <div ref={journeysRef2} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {/* Variant cards */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Santorini cliffside white and blue domes at sunset"
-                  style={{
-                    backgroundImage:
-                      'url("/greek-islands-white-blue-santorini.jpg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,299/P</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Santorini Cliffside Retreat</p>
-                    <p className="mt-1 text-sm text-muted-foreground">5N/6D • Greece</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
+              {signaturePackages.length > 0 ? (
+                signaturePackages.map((pkg, index) => (
+                  <div
+                    key={pkg._id || index}
+                    className="relative flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300 shrink-0 group"
+                  >
+                    {/* Mobile-only full-card link */}
+                    <Link
+                      href={`/${pkg.category?.slug || 'india-tours'}/${(pkg.locations?.[0] || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
+                      className="absolute inset-0 z-20 md:hidden"
+                      aria-label={`View details for ${pkg.title}`}
+                    />
 
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Iceland waterfall under aurora night sky"
-                  style={{
-                    backgroundImage:
-                      'url("/iceland-waterfalls-geysers-northern-lights-landsca.jpg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,599/C</span>
+                    <div
+                      className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
+                      aria-label={pkg.title}
+                      style={{
+                        backgroundImage: `url("${pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg'}")`,
+                      }}
+                    >
+                      <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
+                        <span className="text-lg font-bold">${pkg.startingPrice?.toLocaleString() || 'P.O.R'}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
+                      <div>
+                        <p className="text-lg font-semibold text-foreground line-clamp-2">{pkg.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {pkg.duration?.nights}N/{pkg.duration?.days}D • {pkg.locations?.[0] || 'Unknown'}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/${pkg.category?.slug || 'india-tours'}/${(pkg.locations?.[0] || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
+                        className="relative z-30 h-10 min-w-[84px] cursor-pointer rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 group-hover:bg-red-800 flex items-center justify-center"
+                      >
+                        <span className="truncate">View Details</span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Iceland Northern Lights</p>
-                    <p className="mt-1 text-sm text-muted-foreground">6N/7D • Iceland</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Moroccan desert kasbah at sunset"
-                  style={{
-                    backgroundImage:
-                      'url("/moroccan-desert-kasbah-sunset.jpg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,899</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Sahara & Kasbah Trails</p>
-                    <p className="mt-1 text-sm text-muted-foreground">8N/9D • Morocco</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Bali tropical beach and resort at golden hour"
-                  style={{
-                    backgroundImage:
-                      'url("/tropical-bali-beach-resort-with-clear-ocean.jpg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,499</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Bali Island Hideaway</p>
-                    <p className="mt-1 text-sm text-muted-foreground">7N/8D • Indonesia</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Swiss Alps winter resort and lake"
-                  style={{
-                    backgroundImage:
-                      'url("/luxury-alpine-resort-with-mountain-views-and-snow.jpg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,799</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Alpine Winter Escape</p>
-                    <p className="mt-1 text-sm text-muted-foreground">5N/6D • Switzerland</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
+                ))
+              ) : (
+                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+              )}
             </div>
           </div>
           <div className="mt-6 flex sm:hidden justify-center">
             <Link
-              href="/packages"
+              href="/india-tours"
               className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
             >
               View All Packages
@@ -330,7 +471,7 @@ export default function Home() {
             </div>
             <div className="hidden sm:flex items-center gap-3">
               <Link
-                href="/packages"
+                href="/thailand-tours"
                 className="hidden md:inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
               >
                 View All Packages
@@ -356,135 +497,54 @@ export default function Home() {
 
           <div ref={journeysRef1} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {/* Card 1 */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="A lush green vineyard under the warm Tuscan sun"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMoNJZH1otxwMfBt8qM6Mf-RaTrng3giLzXAadJH_UF_w3omsW_ejMyfltugNnEssLI6mVrqW657DAg14jA_CJ7pzUESSYUgoRVTmNWvY8yjA4JSvqNCYkRm-tD_vTERA_d8IXQUyZZXZzqct4wHQsk68ubvNBTEBAVyRj7BL-77j-Z-QolLcg-EOczrO8V9MpLuKmKmPOcK1o-lhI1OhO700LoYkhxcI1ikGqdTw0HBL4vb0cKOBU_QBsLK6ottz5QrGoqy-XD88")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$1,899</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Tuscan Vineyard Escape</p>
-                    <p className="mt-1 text-sm text-muted-foreground">7N/8D • Italy</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
+              {exclusivePackages.length > 0 ? (
+                exclusivePackages.map((pkg, index) => (
+                  <div
+                    key={pkg._id || index}
+                    className="relative flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300 shrink-0 group"
+                  >
+                    {/* Mobile-only full-card link */}
+                    <Link
+                      href={`/${pkg.category?.slug || 'thailand-tours'}/${(pkg.locations?.[0] || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
+                      className="absolute inset-0 z-20 md:hidden"
+                      aria-label={`View details for ${pkg.title}`}
+                    />
 
-              {/* Card 2 */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="A serene ancient temple in Kyoto surrounded by autumn foliage"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAWJmEXWElIbq1uzoia1hV3PNLbF2amjq0aGkZLgDpM-gwJ_wiPip88e9uH7ptuwV2RRfYWORHcBVEZBN603bRcddDS7jPOYojqvWUrFIPAog6_sRoK7wmFzTYIpiSPPvWDapH0oZRejxHfGhxLNJltBENJ1RS1Uq9kRtpoNwXvgieEXwo-sSZC4rsGy7Mgp0Lmk-y8NNw6eDZ1fOGicbj-zrMoKWOpiTv2SJSXC9PBKv9NMsDPHUzCA39yBQCQgAwtSJNvBpCLQvg")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$2,199</span>
+                    <div
+                      className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
+                      aria-label={pkg.title}
+                      style={{
+                        backgroundImage: `url("${pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg'}")`,
+                      }}
+                    >
+                      <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
+                        <span className="text-lg font-bold">${pkg.startingPrice?.toLocaleString() || 'P.O.R'}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
+                      <div>
+                        <p className="text-lg font-semibold text-foreground line-clamp-2">{pkg.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {pkg.duration?.nights}N/{pkg.duration?.days}D • {pkg.locations?.[0] || 'Unknown'}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/${pkg.category?.slug || 'thailand-tours'}/${(pkg.locations?.[0] || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
+                        className="relative z-30 h-10 min-w-[84px] cursor-pointer rounded-[6px] bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 group-hover:bg-red-800 flex items-center justify-center"
+                      >
+                        <span className="truncate">View Details</span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Kyoto's Ancient Secrets</p>
-                    <p className="mt-1 text-sm text-muted-foreground">8N/9D • Japan</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="A vast herd of wildebeest migrating across the Serengeti plains at sunset"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCWncM-gjwvz-Sg4hIKGIwueWD45V4G_8FbR1acFW6ONFgbvfIm5ePedwCtgGbUWSndpTO92wo4pa8uY8dpwbaqHD4QU-VT0RmDeAEtPp-N1l2PkGG8NaHfRy80HtyyKujLMw4Y0w7p5zyPFaaRY82cJikMX66Sq0P-M7qPbDWuCbdcyj2Hu7an2fkV53dI6FmfgyzEfMRpe_V8EUeffUCWQBcTh9r0z_F17MmTX7jGDri5C1MxSVD0q0KSHnUbypzsqqEiegwyNbs")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$2,499</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">The Great Serengeti Migration</p>
-                    <p className="mt-1 text-sm text-muted-foreground">8N/9D • Tanzania</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 4 */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="A luxury yacht sailing on the clear blue waters of the Aegean Sea"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBODJzo5rgyJZbbWiHrBb8HUfNiOg2zQi2PxIXBkmIsHUsEX3Cnw2tvfXw3d-iWQ8fnxGlzmmeBfD6x1ky_OIVET0jJa_poOsDM765Hmtka776QcxFyuJXr-D_fVEJKtXNQM5dqQTBqWvg0lrnm14RZpyJ48ZRdFuBqDirUwk5_mExLZ4SRfluPRbm3KEKAiydSqqvsBxdT0wUc93rXtLA1GJmccCKOIDybRIAzprM-SuXQh0wgxjhj9fra6kDTYRHwu7D7i3YXt6k")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$3,299</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Aegean Yacht Adventure</p>
-                    <p className="mt-1 text-sm text-muted-foreground">6N/7D • Greece</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 5 */}
-              <div className="flex w-72 sm:w-80 flex-col gap-4 rounded-xl bg-card border border-border/80 transition-all duration-300">
-                <div
-                  className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
-                  aria-label="Snow-capped mountains and pristine lakes in Patagonia"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDematr3mwor3AJJyAGm9G0ttwp8oM-nvSTgoqAQJ5dsm5Rl4xTzmF3JFBdACWgcQ575Ti_1oZOmPDNkc-rNYj2npgCerRGUYh1-Z8paf6zYnCgB89O8LmCPYFqA6UuGcIQvewEwUMekxIxxVAB3oUjDSfIqb1R89FSMKJUska_VGpGnqBHN9G_O4NQ8UuPAPdHKnH0Cu2O8mzgeMBvmQTGv1U4ogz69r9RiAotsw71_NHRQQwA49C2dUnxfBlVhw8IHSs57d3JHnM")',
-                  }}
-                >
-                  <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
-                    <span className="text-lg font-bold">$2,799</span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5 pt-0">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Patagonia Wilderness Trek</p>
-                    <p className="mt-1 text-sm text-muted-foreground">10N/11D • Chile</p>
-                  </div>
-                  <button className="h-10 min-w-[84px] cursor-pointer overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white transition-all duration-300 hover:bg-red-800">
-                    <span className="truncate">View Details</span>
-                  </button>
-                </div>
-              </div>
+                ))
+              ) : (
+                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+              )}
             </div>
           </div>
           <div className="mt-6 flex sm:hidden justify-center">
             <Link
-              href="/packages"
+              href="/thailand-tours"
               className="inline-flex h-10 items-center justify-center rounded-[6px] bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-red-800 transition-colors"
             >
               View All Packages
@@ -507,21 +567,23 @@ export default function Home() {
           {/* Bento Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 auto-rows-[180px] gap-4">
             {/* Card 1: Main Hero (Varanasi) - 2x2 on Desktop */}
-            <div className="relative col-span-1 md:col-span-2 row-span-2 rounded-xl overflow-hidden bg-gray-200">
+            <Link
+              href="/india-tours/varanasi"
+              className="relative col-span-1 md:col-span-2 row-span-2 rounded-xl overflow-hidden bg-gray-200 group cursor-pointer"
+            >
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                aria-label="Varanasi ghats at sunset with boats on the river"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
+                aria-label="Varanasi ghats at sunrise"
                 style={{
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDn6kp5aSWYEwFPgBMqr2VsFfaxpZY0hIU9UgeQVstZ0ZrS-4KUDroOyRvcAdRZFyKb4lWond-C9iHTRl4HxxX2FEIE3GzwhU58Xn3kyOBpyzcVU1qzyBJpTEod92wYBQBXBj0XF6S5UDKLnmlKyu-zRF1ZWgeizcKSkkb3i1dcL5IYSuxoyaZ6iaqLphXTfDMOKLBJEMmOP512W6KXUhMsnpRT8TGG47H7umc_QPwwiSuYiat5jazfR2au0_WCdl_rwNaZ_a1hN8_L')"
+                  backgroundImage: "url('/roadmap/varanasi_sunrise_pro_1769426586490.png')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Nature</div>
               <div className="absolute bottom-0 left-0 w-full p-6">
                 <h3 className="text-white text-3xl font-bold mb-1">Varanasi</h3>
                 <p className="text-gray-200 text-sm line-clamp-2 max-w-md">Experience the spiritual heart of India along the sacred Ganges river. Witness the ancient Ganga Aarti ceremony.</p>
               </div>
-            </div>
+            </Link>
 
             {/* Card 2: Weather Widget (Delhi) - 1x1 */}
             <div className="relative col-span-1 row-span-1 rounded-xl bg-card p-5 flex flex-col justify-between border border-border">
@@ -551,55 +613,61 @@ export default function Home() {
             </div>
 
             {/* Card 4: Secondary Hero (Kerala) - 1x2 Vertical on Desktop */}
-            <div className="relative col-span-1 row-span-2 rounded-xl overflow-hidden bg-gray-800">
+            <Link
+              href="/india-tours/kerala"
+              className="relative col-span-1 row-span-2 rounded-xl overflow-hidden bg-gray-800 group cursor-pointer"
+            >
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                aria-label="Kerala backwaters with houseboats and palm trees"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
+                aria-label="Kerala backwaters"
                 style={{
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5meJEod1yf3cHjao9EfaNzOCr7ibL8ruyeqRvfGo3vzE17Jt_ECk-VBcA1cJovBcC83CDZ6OoHGdjX7W3NDVgDjrMzcerP9877_olMPZ8jGOTYnOqHWBbLTOKYB2F13KiR-l-N3sFcbyhYMeH6KCR3nk6vFG9PboL5h0uKtIE7hpxiicrCgf7xLX9R2R6bkyz4-r84HWNQtLMx6Vlbhs1sUs2bQR8R8ZlawCQEGBZnxS0EmRN8AaUkxu0GU_hj-6ad_jA_vOPUZyf')"
+                  backgroundImage: "url('https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Nature</div>
               <div className="absolute bottom-0 w-full p-5 flex flex-col gap-1">
                 <h3 className="text-white text-xl font-bold">Kerala</h3>
-                <p className="text-gray-300 text-xs">God&apos;s Own Country</p>
+                <p className="text-gray-300 text-xs text-sh-xs">God&apos;s Own Country</p>
               </div>
-            </div>
+            </Link>
 
-            {/* Card 4.5: Festivals (Culture) - 1x1 */}
-            <div className="relative col-span-1 row-span-1 rounded-xl overflow-hidden bg-gray-100 group cursor-pointer border border-border">
+            {/* Card 4.5: Delhi - 1x1 */}
+            <Link
+              href="/india-tours/delhi"
+              className="relative col-span-1 row-span-1 rounded-xl overflow-hidden bg-gray-100 group cursor-pointer border border-border"
+            >
               <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                aria-label="Vibrant Diwali festival celebrations with diyas and sparklers"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
+                aria-label="New Delhi historical monument"
                 style={{
-                  backgroundImage: "url('/Discover India/diwali.png')"
+                  backgroundImage: "url('/roadmap/old_delhi_heritage_pro_1769426448111.png')"
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute top-4 left-4 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Culture</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity"></div>
               <div className="absolute bottom-0 w-full p-5">
-                <h3 className="text-white text-lg font-bold">Festivals</h3>
-                <p className="text-gray-200 text-xs transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">Experience India&apos;s vibrant soul.</p>
+                <h3 className="text-white text-lg font-bold">Delhi</h3>
+                <p className="text-gray-200 text-xs">Discover the capital&apos;s heritage.</p>
               </div>
-            </div>
+            </Link>
 
             {/* Card 5: Jaipur (Medium) - 2x1 Horizontal */}
-            <div className="relative col-span-1 md:col-span-2 row-span-1 rounded-xl overflow-hidden bg-pink-50 dark:bg-pink-900/20">
+            <Link
+              href="/india-tours/jaipur"
+              className="relative col-span-1 md:col-span-2 row-span-1 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800/20 group cursor-pointer"
+            >
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                aria-label="Hawa Mahal in Jaipur, intricate pink architecture"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
+                aria-label="Amber Fort in Jaipur"
                 style={{
-                  backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDHDY7rV2X300mU_h-4ODd4D7pKM-jIy4VVdGh81kpyG6aeLYgcgr6jPqRu8_odBSObiCY-4drqORH27RK3tM8ZnZjRLdOVdomlPgt93GNKPWap0DVE0A6QQ2lMLoaJ9mSB9jFYoRaG6GDBKUnWaHzpaeLV0Vl79NZElkCmjwDqUaWDHQ1nqQlSpWl-9g0slS1Ca8BWm0NLuI3goMvAlWJNr8Kbk0z-2ggbKAIE6mTGqI15yc3rEHGde_f0cPlz39JLQWoG0807Ty2')"
+                  backgroundImage: "url('/roadmap/jaipur_amber_fort_pro_1769426544370.png')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Nature</div>
               <div className="relative h-full flex flex-col justify-end p-6 items-start">
                 <h3 className="text-white text-2xl font-bold mb-1">Jaipur</h3>
-                <p className="text-pink-100 text-sm max-w-xs">The Pink City awaits with royal palaces.</p>
+                <p className="text-gray-200 text-sm max-w-xs">The Pink City awaits with royal palaces.</p>
               </div>
-            </div>
+            </Link>
 
             {/* Card 6: Trending List (Vertical List) - 1x2 Vertical */}
             <div className="col-span-1 row-span-2 rounded-xl bg-card border border-border p-5 overflow-hidden">
@@ -700,21 +768,23 @@ export default function Home() {
             </div>
 
             {/* Card 9: Mumbai - 1x1 */}
-            <div className="relative col-span-1 row-span-1 rounded-xl overflow-hidden bg-gray-900">
+            <Link
+              href="/india-tours/mumbai"
+              className="relative col-span-1 row-span-1 rounded-xl overflow-hidden bg-gray-900 group cursor-pointer"
+            >
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
                 aria-label="Gateway of India in Mumbai"
                 style={{
                   backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCyQ5HiD9eaAYWxysjj-BviJSbzJMAJShcvu4Miywtv9Rty8ndpD_uKpxMo5RoQUcmEvUKMsQu3dpYjfoRGXJ8HZnE05Bq2hT3NIJRLNsTyckqNCBuqpvob5IylAJ0HcUgm83XzGiVTz6FZqjPW2T1RutpYlStjHGb0Yt2P1uxPCAr7CZnVdpcdnaDMfe8nKMJYhKKSSeYzU_9Uzu9SxOiKaQSMmFX7isK3AMhY8cl2FrJFtqusfPjUnFx9AOKa0GMlhOek45lHPtGa')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Nature</div>
               <div className="absolute bottom-4 left-4">
                 <p className="text-white font-bold text-lg">Mumbai</p>
                 <p className="text-gray-300 text-xs">City of Dreams</p>
               </div>
-            </div>
+            </Link>
 
 
           </div>
@@ -879,9 +949,7 @@ export default function Home() {
               </div>
               <form
                 className="flex gap-2 mt-4"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                }}
+                onSubmit={(e) => handleNewsletterSubmit(e, 'travel-digest')}
               >
                 <input
                   type="email"
@@ -1403,12 +1471,16 @@ export default function Home() {
               </div>
               {/* Subscription Form */}
               <div className="w-full max-w-md relative pt-4">
-                <form className="flex flex-col gap-4 group/form">
+                <form
+                  className="flex flex-col gap-4 group/form"
+                  onSubmit={(e) => handleNewsletterSubmit(e, 'travel-community')}
+                >
                   <div className="relative w-full">
                     <input
                       className="w-full h-12 pl-4 pr-10 rounded-[8px] bg-card border border-gray-300 focus:border-black text-foreground placeholder:text-muted-foreground shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:shadow-[0_8px_30px_rgb(0,0,0,0.1)] focus:ring-0 transition-all text-sm outline-none"
                       placeholder="Enter your email address..."
                       type="email"
+                      required
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/form:text-primary transition-colors">
                       <span className="text-lg">✉️</span>
@@ -1416,7 +1488,7 @@ export default function Home() {
                   </div>
                   <button
                     className="h-12 w-full bg-primary hover:bg-red-800 text-white font-bold text-base rounded-[8px] transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer"
-                    type="button"
+                    type="submit"
                   >
                     <span>SUBSCRIBE</span>
                     {/* Arrow icon */}

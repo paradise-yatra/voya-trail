@@ -196,3 +196,6 @@ export const getTourAdmin = async (req: AuthRequest, res: Response): Promise<voi
 };
 
 
+
+
+

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, MapPin, Phone, Mail, ChevronDown, ChevronLeft, ChevronRight, ChevronDownIcon } from "lucide-react"
+import { Menu, X, MapPin, Phone, Mail, ChevronDown, ChevronLeft, ChevronRight, ChevronDownIcon, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogOverlay, DialogTitle } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
@@ -30,7 +30,11 @@ export const Header = () => {
     selectedDate: null as Date | null,
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const { toast } = useToast()
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
   const toggleMobileSection = (section: string) => {
     setMobileExpandedSection(mobileExpandedSection === section ? null : section)
@@ -83,7 +87,7 @@ export const Header = () => {
     return Object.keys(errors).length === 0
   }
 
-  const handleBookingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!validateForm()) {
@@ -96,25 +100,52 @@ export const Header = () => {
       return
     }
 
-    console.log("Booking form submitted:", bookingForm)
-    setIsBookingOpen(false)
-    toast({
-      title: "Booking Inquiry Submitted!",
-      description:
-        "Thank you for your inquiry. We'll get back to you soon.",
-      duration: 6000,
-    })
-    setBookingForm({
-      name: "",
-      email: "",
-      phone: "",
-      destination: "",
-      budget: "",
-      message: "",
-      newsletter: true,
-      selectedDate: null,
-    })
-    setFormErrors({})
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(`${API_URL}/api/header-form-submissions/public`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: bookingForm.name,
+          email: bookingForm.email,
+          phone: bookingForm.phone,
+          destination: bookingForm.destination,
+          budget: bookingForm.budget,
+          travelDate: bookingForm.selectedDate?.toISOString(),
+          message: bookingForm.message,
+          newsletter: bookingForm.newsletter,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit booking inquiry')
+      }
+
+      setIsSuccess(true)
+
+      setBookingForm({
+        name: "",
+        email: "",
+        phone: "",
+        destination: "",
+        budget: "",
+        message: "",
+        newsletter: true,
+        selectedDate: null,
+      })
+      setFormErrors({})
+    } catch (error) {
+      console.error("Error submitting booking form:", error)
+      toast({
+        title: "Submission Failed",
+        description: "Something went wrong. Please try again later.",
+        variant: "destructive",
+        duration: 5000,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (field: string, value: any) => {
@@ -239,7 +270,7 @@ export const Header = () => {
           </Link>
 
           <nav className="hidden items-center space-x-8 md:flex">
-            {["India", "Nepal", "Sri Lanka", "Bhutan", "Maldives"].map((country) => (
+            {["India", "Nepal", "Bali", "Bhutan", "Thailand"].map((country) => (
               <Link
                 key={country}
                 href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
@@ -255,35 +286,40 @@ export const Header = () => {
               <Link href="/payment">Pay Now</Link>
             </Button>
 
-            <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+            <Dialog open={isBookingOpen} onOpenChange={(open) => {
+              setIsBookingOpen(open)
+              if (!open) setTimeout(() => setIsSuccess(false), 300)
+            }}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg transition-all duration-300 hover:from-red-700 hover:to-red-900 hover:shadow-red-500/20 w-[120px] h-10 px-0 cursor-pointer">
                   Get Quote
                 </Button>
               </DialogTrigger>
               <DialogContent
-                className="p-0 border-0 shadow-2xl overflow-hidden max-w-3xl w-full h-full sm:h-auto sm:max-h-[90vh] sm:rounded-2xl"
+                className="p-0 border-0 shadow-2xl overflow-hidden max-w-3xl w-full h-[92dvh] sm:h-[90dvh] sm:max-h-[90dvh] sm:rounded-2xl"
                 showCloseButton={false}
               >
                 <DialogTitle className="sr-only">Book Your Adventure</DialogTitle>
 
-                <div className="flex flex-col lg:flex-row bg-white dark:bg-zinc-900 overflow-hidden h-full lg:h-[700px]">
+                <div className="flex flex-col lg:flex-row bg-white dark:bg-zinc-900 overflow-hidden h-full min-h-0 lg:h-[700px] lg:max-h-[90dvh]">
                   {/* Left Panel - Feature Image */}
                   <div className="hidden lg:block lg:w-1/2 relative h-full">
                     <img
-                      src="/images/northern-lights.png"
+                      src="/Pop%20Up%20Forms/header-book-now-form.webp"
                       alt="Northern Lights Aurora"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
-                    <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-20">
-                      <h3 className="text-2xl font-bold mb-2 leading-tight">Chase the Northern Lights</h3>
-                      <p className="text-white/80 text-sm leading-relaxed max-w-xs">Witness nature's most spectacular light show in destinations like Norway, Iceland, and Finland.</p>
+                    <div className="absolute bottom-10 left-0 right-0 px-8 text-white z-20">
+                      <h3 className="text-xl font-bold mb-2 leading-tight tracking-tight drop-shadow-md">Chase the Northern Lights</h3>
+                      <p className="text-white/90 text-[13px] leading-relaxed max-w-[280px] drop-shadow-sm font-medium opacity-90">
+                        Experience the ethereal dance of the Aurora Borealis. From cozy glass igloos to luxury arctic lodges, we craft unforgettable journeys.
+                      </p>
                     </div>
                   </div>
 
                   {/* Right Panel - Booking Form */}
-                  <div className="w-full lg:w-1/2 flex flex-col h-full lg:max-h-[750px]">
+                  <div className="w-full lg:w-1/2 flex flex-col h-full min-h-0">
                     {/* Sticky Header inside scroll area */}
                     <div className="flex items-center justify-between p-5 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 z-10">
                       <div>
@@ -300,165 +336,184 @@ export const Header = () => {
                     </div>
 
                     {/* Scrollable Form Content */}
-                    <div className="flex-1 overflow-y-auto p-5 sm:p-6 scrollbar-thin">
-                      <form onSubmit={handleBookingSubmit} className="space-y-4">
-                        {/* Name and Email Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                              Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={bookingForm.name}
-                              onChange={(e) => handleInputChange("name", e.target.value)}
-                              placeholder="Your Name"
-                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.name ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                            />
-                            {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                              Email Address <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="email"
-                              value={bookingForm.email}
-                              onChange={(e) => handleInputChange("email", e.target.value)}
-                              placeholder="john@example.com"
-                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.email ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                            />
-                            {formErrors.email && <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>}
-                          </div>
+                    {isSuccess ? (
+                      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center h-full min-h-[400px] animate-in fade-in zoom-in duration-300">
+                        <div className="w-24 h-24 bg-green-50 dark:bg-green-500/10 rounded-full flex items-center justify-center mb-6">
+                          <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-500" />
                         </div>
-
-                        {/* Mobile and Destination Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                              Mobile Number <span className="text-gray-400 font-normal">(optional)</span>
-                            </label>
-                            <input
-                              type="tel"
-                              value={bookingForm.phone}
-                              onChange={(e) => handleInputChange("phone", e.target.value)}
-                              placeholder="+91 98765 43210"
-                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.phone ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                            />
-                            {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                              Destination <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={bookingForm.destination}
-                              onChange={(e) => handleInputChange("destination", e.target.value)}
-                              placeholder="e.g. Bali, Japan"
-                              className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.destination ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                            />
-                            {formErrors.destination && <p className="text-xs text-red-500 mt-1">{formErrors.destination}</p>}
-                          </div>
-                        </div>
-
-                        {/* Budget */}
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                            Budget <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={bookingForm.budget}
-                            onChange={(e) => handleInputChange("budget", e.target.value)}
-                            placeholder="e.g. $2000 - $3000"
-                            className={`w-full px-4 h-11 border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all text-base ${formErrors.budget ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                          />
-                          {formErrors.budget && <p className="text-xs text-red-500 mt-1">{formErrors.budget}</p>}
-                        </div>
-
-                        {/* Date Selection */}
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                            Date of Travel <span className="text-red-500">*</span>
-                          </label>
-                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                data-empty={!bookingForm.selectedDate}
-                                className={`w-full justify-between text-left font-medium h-11 rounded-xl bg-white dark:bg-zinc-900 data-[empty=true]:text-muted-foreground transition-all focus:border-red-500 focus:ring-4 focus:ring-red-500/10 cursor-pointer text-base ${formErrors.selectedDate ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
-                              >
-                                {bookingForm.selectedDate ? (
-                                  format(bookingForm.selectedDate, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <ChevronDownIcon className="h-4 w-4 opacity-50" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={bookingForm.selectedDate || undefined}
-                                onSelect={(date) => {
-                                  handleInputChange("selectedDate", date)
-                                  setIsDatePickerOpen(false)
-                                }}
-                                disabled={(date) => date < new Date()}
-                                initialFocus
-                                className="[&_button]:hover:bg-gray-100 [&_button]:transition-colors [&_button]:cursor-pointer"
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Inquiry Sent!</h3>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-8 leading-relaxed">
+                          Thank you for contacting us. Our travel experts will review your details and get back to you shortly.
+                        </p>
+                        <Button
+                          onClick={() => setIsBookingOpen(false)}
+                          className="w-full max-w-[200px] bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors cursor-pointer"
+                        >
+                          Close
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-5 pb-8 sm:px-6 sm:pt-6 sm:pb-10 scrollbar-hidden">
+                        <form onSubmit={handleBookingSubmit} className="space-y-3">
+                          {/* Name and Email Row */}
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                Name <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={bookingForm.name}
+                                onChange={(e) => handleInputChange("name", e.target.value)}
+                                placeholder="Your Name"
+                                className={`w-full px-3 h-10 border rounded-xl bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all ${formErrors.name ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
                               />
-                            </PopoverContent>
-                          </Popover>
-                          {formErrors.selectedDate && <p className="text-xs text-red-500 mt-1">{formErrors.selectedDate}</p>}
-                        </div>
+                              {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                Email Address <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                value={bookingForm.email}
+                                onChange={(e) => handleInputChange("email", e.target.value)}
+                                placeholder="john@example.com"
+                                className={`w-full px-3 h-10 border rounded-xl bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all ${formErrors.email ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                              />
+                              {formErrors.email && <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>}
+                            </div>
+                          </div>
 
-                        {/* Message / Requirements */}
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
-                            Message
-                          </label>
-                          <textarea
-                            value={bookingForm.message}
-                            onChange={(e) => handleInputChange("message", e.target.value)}
-                            placeholder="Any specific requests or info..."
-                            className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-black focus:ring-0 outline-none transition-all text-sm min-h-[70px]"
-                          />
-                        </div>
+                          {/* Mobile and Destination Row */}
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                Mobile Number <span className="text-gray-400 font-normal">(optional)</span>
+                              </label>
+                              <input
+                                type="tel"
+                                value={bookingForm.phone}
+                                onChange={(e) => handleInputChange("phone", e.target.value)}
+                                placeholder="+91 98765 43210"
+                                className={`w-full px-3 h-10 border rounded-xl bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all ${formErrors.phone ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                              />
+                              {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                Destination <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={bookingForm.destination}
+                                onChange={(e) => handleInputChange("destination", e.target.value)}
+                                placeholder="e.g. Bali, Japan"
+                                className={`w-full px-3 h-10 border rounded-xl bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all ${formErrors.destination ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                              />
+                              {formErrors.destination && <p className="text-xs text-red-500 mt-1">{formErrors.destination}</p>}
+                            </div>
+                          </div>
 
-                        {/* Newsletter Checkbox */}
-                        <div className="flex items-start gap-2.5 bg-slate-50/50 dark:bg-zinc-800/30 p-3 rounded-lg border border-gray-100 dark:border-zinc-800">
-                          <div className="flex items-center h-5">
+                          {/* Budget */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Budget <span className="text-red-500">*</span>
+                            </label>
                             <input
-                              type="checkbox"
-                              id="newsletter"
-                              checked={bookingForm.newsletter}
-                              onChange={(e) => handleInputChange("newsletter", e.target.checked)}
-                              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                              type="text"
+                              value={bookingForm.budget}
+                              onChange={(e) => handleInputChange("budget", e.target.value)}
+                              placeholder="e.g. $2000 - $3000"
+                              className={`w-full px-3 h-10 border rounded-xl bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all ${formErrors.budget ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                            />
+                            {formErrors.budget && <p className="text-xs text-red-500 mt-1">{formErrors.budget}</p>}
+                          </div>
+
+                          {/* Date Selection */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Date of Travel <span className="text-red-500">*</span>
+                            </label>
+                            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  data-empty={!bookingForm.selectedDate}
+                                  className={`w-full justify-between text-left font-medium h-10 rounded-xl bg-white dark:bg-zinc-900 data-[empty=true]:text-muted-foreground transition-all focus:border-red-500 focus:ring-4 focus:ring-red-500/10 cursor-pointer text-sm ${formErrors.selectedDate ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'}`}
+                                >
+                                  {bookingForm.selectedDate ? (
+                                    format(bookingForm.selectedDate, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <ChevronDownIcon className="h-4 w-4 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={bookingForm.selectedDate || undefined}
+                                  onSelect={(date) => {
+                                    handleInputChange("selectedDate", date)
+                                    setIsDatePickerOpen(false)
+                                  }}
+                                  disabled={(date) => date < new Date()}
+                                  initialFocus
+                                  className="[&_button]:hover:bg-gray-100 [&_button]:transition-colors [&_button]:cursor-pointer"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {formErrors.selectedDate && <p className="text-xs text-red-500 mt-1">{formErrors.selectedDate}</p>}
+                          </div>
+
+                          {/* Message / Requirements */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200">
+                              Message
+                            </label>
+                            <textarea
+                              value={bookingForm.message}
+                              onChange={(e) => handleInputChange("message", e.target.value)}
+                              placeholder="Any specific requests or info..."
+                              className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-black focus:ring-0 outline-none transition-all text-sm min-h-[60px]"
                             />
                           </div>
-                          <label htmlFor="newsletter" className="text-[12px] text-gray-600 dark:text-gray-400 cursor-pointer select-none leading-relaxed">
-                            Keep me updated with exclusive travel deals, curated itineraries, and member-only updates regarding travel deals and other info.
-                          </label>
-                        </div>
 
-                        {/* Submit Action */}
-                        <div className="pt-2 space-y-3">
-                          <button
-                            type="submit"
-                            className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-lg active:scale-[0.97] transition-all duration-300 flex items-center justify-center gap-2 text-base cursor-pointer mt-4"
-                          >
-                            Send Inquiry
-                          </button>
-                          <div className="text-center">
-                            <p className="text-[9px] text-gray-400 dark:text-gray-600 italic px-4">
-                              By submitting this form, you accept our <Link href="/privacy" className="underline hover:text-red-500 transition-colors">Privacy Policy</Link> and <Link href="/terms" className="underline hover:text-red-500 transition-colors">Terms of Service</Link>.
-                            </p>
+                          {/* Newsletter Checkbox */}
+                          <div className="flex items-start gap-2.5 bg-slate-50/50 dark:bg-zinc-800/30 p-3 rounded-lg border border-gray-100 dark:border-zinc-800">
+                            <div className="flex items-center h-5">
+                              <input
+                                type="checkbox"
+                                id="newsletter"
+                                checked={bookingForm.newsletter}
+                                onChange={(e) => handleInputChange("newsletter", e.target.checked)}
+                                className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                              />
+                            </div>
+                            <label htmlFor="newsletter" className="text-[12px] text-gray-600 dark:text-gray-400 cursor-pointer select-none leading-relaxed">
+                              Keep me updated with exclusive travel deals, curated itineraries, and member-only updates regarding travel deals and other info.
+                            </label>
                           </div>
-                        </div>
-                      </form>
-                    </div>
+
+                          {/* Submit Action */}
+                          <div className="pt-2 space-y-3 pb-6">
+                            <button
+                              type="submit"
+                              disabled={isSubmitting}
+                              className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-lg active:scale-[0.97] transition-all duration-300 flex items-center justify-center gap-2 text-base cursor-pointer mt-4 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
+                            >
+                              {isSubmitting ? 'Submitting...' : 'Send Inquiry'}
+                            </button>
+                            <div className="text-center">
+                              <p className="text-[9px] text-gray-400 dark:text-gray-600 italic px-4">
+                                By submitting this form, you accept our <Link href="/privacy" className="underline hover:text-red-500 transition-colors">Privacy Policy</Link> and <Link href="/terms" className="underline hover:text-red-500 transition-colors">Terms of Service</Link>.
+                              </p>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    )}
                   </div>
                 </div>
               </DialogContent>
@@ -501,7 +556,7 @@ export const Header = () => {
       >
         <div className="border-t bg-white dark:bg-zinc-900 shadow-lg">
           <div className="px-4 py-3">
-            {["India", "Nepal", "Sri Lanka", "Bhutan", "Maldives"].map((country, index) => (
+            {["India", "Nepal", "Bali", "Bhutan", "Thailand"].map((country, index) => (
               <div
                 key={country}
                 className="border-b border-slate-100 dark:border-zinc-800 last:border-0"

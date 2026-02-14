@@ -12,3 +12,6 @@ router.get('/:slug', getTourBySlug);
 export default router;
 
 
+
+
+
