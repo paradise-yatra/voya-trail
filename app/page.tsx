@@ -52,7 +52,11 @@ export default function Home() {
         try {
           const res = await publicAPI.search(searchQuery)
           if (res && res.success) {
-            setSearchResults(res.data)
+            setSearchResults({
+              packages: res.data?.packages || [],
+              categories: res.data?.categories || [],
+              destinations: res.data?.destinations || []
+            })
             setShowSearchDropdown(true)
           }
         } catch (error) {
@@ -245,14 +249,14 @@ export default function Home() {
                   <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
 
                     {/* No Results */}
-                    {searchResults.packages.length === 0 && searchResults.categories.length === 0 && searchResults.destinations.length === 0 && !isSearching && (
+                    {searchResults.packages?.length === 0 && searchResults.categories?.length === 0 && searchResults.destinations?.length === 0 && !isSearching && (
                       <div className="p-8 text-center text-gray-500">
                         <p>No results found for "{searchQuery}"</p>
                       </div>
                     )}
 
                     {/* Packages */}
-                    {searchResults.packages.length > 0 && (
+                    {searchResults.packages?.length > 0 && (
                       <div className="py-3">
                         <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                           <Compass className="w-3 h-3" /> Packages
@@ -281,7 +285,7 @@ export default function Home() {
                     )}
 
                     {/* Destinations */}
-                    {searchResults.destinations.length > 0 && (
+                    {searchResults.destinations?.length > 0 && (
                       <div className="py-3 border-t border-gray-100">
                         <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                           <MapPin className="w-3 h-3" /> Destinations
@@ -303,7 +307,7 @@ export default function Home() {
                     )}
 
                     {/* Categories */}
-                    {searchResults.categories.length > 0 && (
+                    {searchResults.categories?.length > 0 && (
                       <div className="py-3 border-t border-gray-100">
                         <h4 className="px-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                           <Box className="w-3 h-3" /> Categories
@@ -402,7 +406,7 @@ export default function Home() {
 
           <div ref={journeysRef2} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {signaturePackages.length > 0 ? (
+              {signaturePackages?.length > 0 ? (
                 signaturePackages.map((pkg, index) => (
                   <div
                     key={pkg._id || index}
@@ -497,7 +501,7 @@ export default function Home() {
 
           <div ref={journeysRef1} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {exclusivePackages.length > 0 ? (
+              {exclusivePackages?.length > 0 ? (
                 exclusivePackages.map((pkg, index) => (
                   <div
                     key={pkg._id || index}
