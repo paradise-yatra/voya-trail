@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 
 import { publicAPI } from "@/lib/api"
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
 
 export default function Home() {
   const journeysRef1 = useRef<HTMLDivElement | null>(null)
@@ -269,7 +270,7 @@ export default function Home() {
                                 className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors group"
                               >
                                 <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 relative">
-                                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${pkg.mainImage})` }} />
+                                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 100 })})` }} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="font-semibold text-gray-800 truncate group-hover:text-[#e42b28] transition-colors">{pkg.title}</p>
@@ -423,7 +424,7 @@ export default function Home() {
                       className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                       aria-label={pkg.title}
                       style={{
-                        backgroundImage: `url("${pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg'}")`,
+                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 400 })}")`,
                       }}
                     >
                       <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
@@ -518,7 +519,7 @@ export default function Home() {
                       className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                       aria-label={pkg.title}
                       style={{
-                        backgroundImage: `url("${pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg'}")`,
+                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 400 })}")`,
                       }}
                     >
                       <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">

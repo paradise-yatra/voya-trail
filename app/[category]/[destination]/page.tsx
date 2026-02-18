@@ -14,6 +14,7 @@ import {
     ArrowRight
 } from "lucide-react"
 import { publicAPI } from "@/lib/api"
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
 
 import {
     Select,
@@ -262,7 +263,7 @@ export default function DestinationPage() {
                                         <div className="w-full md:w-2/5 relative overflow-hidden h-48 md:h-auto">
                                             <div
                                                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
-                                                style={{ backgroundImage: `url(${pkg.mainImage})` }}
+                                                style={{ backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 600 })})` }}
                                             />
                                         </div>
                                         {/* Content */}

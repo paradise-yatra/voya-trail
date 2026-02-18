@@ -27,7 +27,7 @@ async function fetchCategories(): Promise<{ slug: string }[]> {
     }
 }
 
-async function fetchPackages(): Promise<{ slug: string; categorySlug: string; updatedAt?: string }[]> {
+async function fetchPackages(): Promise<{ slug: string; categorySlug: string; locations?: string[]; updatedAt?: string }[]> {
     try {
         const res = await fetch(`${API_URL}/api/packages/public?limit=1000`, {
             next: { revalidate: 3600 }, // Revalidate every 1 hour
@@ -38,6 +38,7 @@ async function fetchPackages(): Promise<{ slug: string; categorySlug: string; up
         return packages.map((pkg: any) => ({
             slug: pkg.slug,
             categorySlug: pkg.category?.slug || pkg.categorySlug || '',
+            locations: pkg.locations,
             updatedAt: pkg.updatedAt,
         }))
     } catch (error) {
@@ -69,15 +70,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }))
 
-    // Package detail pages (e.g. /india-tours/golden-triangle)
+    // Destination pages (e.g. /india-tours/varanasi)
+    // We derive unique destinations from packages
+    const destinationMap = new Map<string, { categorySlug: string, destinationSlug: string }>();
+    packages.forEach(pkg => {
+        if (pkg.categorySlug && pkg.locations && pkg.locations.length > 0) {
+            const destSlug = pkg.locations[0].toLowerCase().replace(/\s+/g, '-');
+            const key = `${pkg.categorySlug}/${destSlug}`;
+            if (!destinationMap.has(key)) {
+                destinationMap.set(key, {
+                    categorySlug: pkg.categorySlug,
+                    destinationSlug: destSlug
+                });
+            }
+        }
+    });
+
+    const destinationEntries: MetadataRoute.Sitemap = Array.from(destinationMap.values()).map(dest => ({
+        url: `${BASE_URL}/${dest.categorySlug}/${dest.destinationSlug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.75,
+    }));
+
+    // Package detail pages (e.g. /india-tours/varanasi/golden-triangle)
     const packageEntries: MetadataRoute.Sitemap = packages
         .filter((pkg) => pkg.categorySlug && pkg.slug)
-        .map((pkg) => ({
-            url: `${BASE_URL}/${pkg.categorySlug}/${pkg.slug}`,
-            lastModified: pkg.updatedAt ? new Date(pkg.updatedAt) : new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.7,
-        }))
+        .map((pkg) => {
+            const destSlug = (pkg.locations && pkg.locations.length > 0)
+                ? pkg.locations[0].toLowerCase().replace(/\s+/g, '-')
+                : 'trip';
 
-    return [...staticEntries, ...categoryEntries, ...packageEntries]
+            return {
+                url: `${BASE_URL}/${pkg.categorySlug}/${destSlug}/${pkg.slug}`,
+                lastModified: pkg.updatedAt ? new Date(pkg.updatedAt) : new Date(),
+                changeFrequency: 'weekly' as const,
+                priority: 0.7,
+            };
+        })
+
+    return [
+        ...staticEntries,
+        ...categoryEntries,
+        ...destinationEntries,
+        ...packageEntries,
+        {
+            url: `${BASE_URL}/blogdetail`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.6,
+        }
+    ]
 }

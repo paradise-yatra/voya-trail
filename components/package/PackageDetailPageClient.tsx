@@ -42,6 +42,7 @@ import {
 import { HeroGallery } from "@/components/package/HeroGallery"
 import { PackageContent } from "@/components/package/PackageContent"
 import { RelatedTours } from "@/components/package/RelatedTours"
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
 
 interface PackageDetailPageClientProps {
     packageData: any;
@@ -54,10 +55,19 @@ export default function PackageDetailPageClient({ packageData, category, destina
     const [date, setDate] = React.useState<Date>()
 
     // Helper to safely get images
-    const getUrl = (img: any) => {
+    const getUrl = (img: any, width: number = 1200) => {
+        let url = null;
         if (!img) return null;
-        if (typeof img === 'string') return img;
-        if (typeof img === 'object' && img.url) return img.url;
+
+        if (typeof img === 'string') {
+            url = img;
+        } else if (typeof img === 'object' && img.url) {
+            url = img.url;
+        }
+
+        if (url) {
+            return optimizeCloudinaryUrl(url, { width });
+        }
         return null;
     };
 
@@ -72,16 +82,16 @@ export default function PackageDetailPageClient({ packageData, category, destina
         // If images is an array
         if (Array.isArray(packageData.images) && packageData.images.length > 0) {
             return {
-                main: getUrl(packageData.images[0]) || rootMain || defaultImage,
-                topRight: getUrl(packageData.images[1]) || rootGallery[0] || defaultImage,
-                bottomRight: getUrl(packageData.images[2]) || rootGallery[1] || defaultImage,
+                main: getUrl(packageData.images[0], 1200) || rootMain || defaultImage,
+                topRight: getUrl(packageData.images[1], 800) || rootGallery[0] || defaultImage,
+                bottomRight: getUrl(packageData.images[2], 800) || rootGallery[1] || defaultImage,
             };
         }
         // If images is an object
         return {
-            main: getUrl(imgs.hero) || getUrl(imgs.main) || rootMain || defaultImage,
-            topRight: getUrl(imgs.gallery?.[0]) || getUrl(imgs.topRight) || rootGallery[0] || defaultImage,
-            bottomRight: getUrl(imgs.gallery?.[1]) || getUrl(imgs.bottomRight) || rootGallery[1] || defaultImage,
+            main: getUrl(imgs.hero, 1200) || getUrl(imgs.main, 1200) || rootMain || defaultImage,
+            topRight: getUrl(imgs.gallery?.[0], 800) || getUrl(imgs.topRight, 800) || rootGallery[0] || defaultImage,
+            bottomRight: getUrl(imgs.gallery?.[1], 800) || getUrl(imgs.bottomRight, 800) || rootGallery[1] || defaultImage,
         };
     };
 
@@ -185,10 +195,10 @@ export default function PackageDetailPageClient({ packageData, category, destina
                                     experiences: day.experiences || [],
                                     stay: day.stay ? {
                                         ...day.stay,
-                                        image: getUrl(day.stay.image)
+                                        image: getUrl(day.stay.image, 800)
                                     } : undefined,
                                     images: (day.images && day.images.length > 0)
-                                        ? day.images.map((img: any) => getUrl(img))
+                                        ? day.images.map((img: any) => getUrl(img, 800))
                                         : [],
                                 }))}
                             />
