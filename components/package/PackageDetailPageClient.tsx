@@ -77,7 +77,7 @@ export default function PackageDetailPageClient({ packageData, category, destina
 
         // Check for root level images (legacy or alternative structure)
         const rootMain = getUrl(packageData.mainImage);
-        const rootGallery = Array.isArray(packageData.galleryImages) ? packageData.galleryImages.map(getUrl) : [];
+        const rootGallery = Array.isArray(packageData.galleryImages) ? packageData.galleryImages.map((img: any) => getUrl(img, 800)) : [];
 
         // If images is an array
         if (Array.isArray(packageData.images) && packageData.images.length > 0) {
