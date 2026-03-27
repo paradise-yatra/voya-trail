@@ -4,7 +4,7 @@ import React from "react"
 
 import Link from "next/link"
 import Image from "next/image"
-import { Mail, Instagram, Facebook, Youtube } from "lucide-react"
+import { Mail, Phone, Instagram, Facebook, Youtube } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { toast } from "sonner"
 
@@ -32,31 +32,31 @@ export function Footer() {
             <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="/india-tours"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours India
               </Link>
               <Link
                 href="/nepal-tours"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Nepal
               </Link>
               <Link
                 href="/bhutan-tours"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Bhutan
               </Link>
               <Link
                 href="/bali-tours"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Bali
               </Link>
               <Link
                 href="/thailand-tours"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Thailand
               </Link>
@@ -71,31 +71,31 @@ export function Footer() {
             <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Heritage Stays
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Wildlife Safaris
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Culinary Tours
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Wellness Retreats
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Luxury Trains
               </Link>
@@ -110,31 +110,31 @@ export function Footer() {
             <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Editor&apos;s Picks
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Travel Guides
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Photography
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Cultural Insights
               </Link>
               <Link
                 href="#"
-                className="hover:text-primary transition-all duration-300"
+                className="hover:text-[#df2c28] transition-all duration-300"
               >
                 Sustainable Travel
               </Link>
@@ -165,11 +165,18 @@ export function Footer() {
                 <p className="text-[#4c669a] text-sm font-sans mt-1">Your Personal Travel Expert</p>
               </div>
               <a
-                className="group flex items-center gap-2 text-primary dark:text-blue-400 font-sans font-medium text-sm mt-2"
+                className="group flex items-center gap-2 text-primary dark:text-blue-400 font-sans font-medium text-sm mt-2 hover:text-[#df2c28] dark:hover:text-[#df2c28] transition-colors duration-300"
                 href="mailto:sales@voyatrail.com"
               >
                 <Mail className="w-[18px] h-[18px]" />
                 <span className="group-hover:underline">sales@voyatrail.com</span>
+              </a>
+              <a
+                className="group flex items-center gap-2 text-primary dark:text-blue-400 font-sans font-medium text-sm hover:text-[#df2c28] dark:hover:text-[#df2c28] transition-colors duration-300"
+                href="tel:+918979038079"
+              >
+                <Phone className="w-[18px] h-[18px]" />
+                <span className="group-hover:underline">+91 8979038079</span>
               </a>
               {/* Minimalist Newsletter Input integrated */}
               <form
@@ -231,13 +238,16 @@ export function Footer() {
         <div className="flex flex-col-reverse md:flex-row justify-between items-center pt-10 gap-6">
           {/* Legal Links */}
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-[#4c669a] dark:text-gray-500 font-sans tracking-wide">
-            <span>© 2024 Discover India Ltd.</span>
+            <span>© 2026 Voya Trail</span>
             <div className="hidden md:block w-px h-3 bg-gray-300 dark:bg-gray-700" />
-            <Link href="#" className="hover:text-primary transition-colors">
+            <Link href="/privacy" className="hover:text-[#df2c28] transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-primary transition-colors">
+            <Link href="/terms" className="hover:text-[#df2c28] transition-colors">
               Terms of Service
+            </Link>
+            <Link href="/refund-policy" className="hover:text-[#df2c28] transition-colors">
+              Refund Policy
             </Link>
           </div>
 
@@ -264,7 +274,9 @@ export function Footer() {
               <Facebook className="w-5 h-5" />
             </Link>
             <Link
-              href="#"
+              href="https://www.youtube.com/@VoyaTrail"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-[#4c669a] hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
             >
               <Youtube className="w-5 h-5" />

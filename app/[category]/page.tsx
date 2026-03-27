@@ -320,7 +320,7 @@ export default function CategoryPage() {
                                             <div
                                                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
                                                 style={{
-                                                    backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 600 })})`,
+                                                    backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 640, height: 420, quality: "eco" })})`,
                                                 }}
                                             />
                                         </div>

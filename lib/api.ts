@@ -11,6 +11,14 @@ const apiClient: AxiosInstance = axios.create({
     },
 });
 
+const publicApiClient: AxiosInstance = axios.create({
+    baseURL: API_URL,
+    withCredentials: false,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
 // User type
 export interface User {
     id: string;
@@ -109,19 +117,19 @@ export const adminToursAPI = {
 // Public API
 export const publicAPI = {
     getPackages: async (params: { category?: string; location?: string; excludeCategory?: string; page?: number; limit?: number }) => {
-        const response = await apiClient.get('/api/packages/public', { params });
+        const response = await publicApiClient.get('/api/packages/public', { params });
         return response.data;
     },
     getPackageBySlug: async (slug: string) => {
-        const response = await apiClient.get(`/api/packages/public/${slug}`);
+        const response = await publicApiClient.get(`/api/packages/public/${slug}`);
         return response.data;
     },
     getCategoryBySlug: async (slug: string) => {
-        const response = await apiClient.get(`/api/tour-categories/public/slug/${slug}`);
+        const response = await publicApiClient.get(`/api/tour-categories/public/slug/${slug}`);
         return response.data;
     },
     search: async (q: string) => {
-        const response = await apiClient.get('/api/packages/search', { params: { q } });
+        const response = await publicApiClient.get('/api/packages/search', { params: { q } });
         return response.data;
     }
 };

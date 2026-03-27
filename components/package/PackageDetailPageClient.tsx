@@ -55,7 +55,10 @@ export default function PackageDetailPageClient({ packageData, category, destina
     const [date, setDate] = React.useState<Date>()
 
     // Helper to safely get images
-    const getUrl = (img: any, width: number = 1200) => {
+    const getUrl = (
+        img: any,
+        options: number | { width?: number; height?: number; quality?: "auto" | "best" | "good" | "eco" | "low" } = 1200
+    ) => {
         let url = null;
         if (!img) return null;
 
@@ -66,7 +69,8 @@ export default function PackageDetailPageClient({ packageData, category, destina
         }
 
         if (url) {
-            return optimizeCloudinaryUrl(url, { width });
+            const cloudinaryOptions = typeof options === "number" ? { width: options } : options;
+            return optimizeCloudinaryUrl(url, cloudinaryOptions);
         }
         return null;
     };
@@ -76,22 +80,24 @@ export default function PackageDetailPageClient({ packageData, category, destina
         const imgs = packageData.images || {};
 
         // Check for root level images (legacy or alternative structure)
-        const rootMain = getUrl(packageData.mainImage);
-        const rootGallery = Array.isArray(packageData.galleryImages) ? packageData.galleryImages.map((img: any) => getUrl(img, 800)) : [];
+        const rootMain = getUrl(packageData.mainImage, { width: 1600, height: 900, quality: "good" });
+        const rootGallery = Array.isArray(packageData.galleryImages)
+            ? packageData.galleryImages.map((img: any) => getUrl(img, { width: 800, height: 450, quality: "good" }))
+            : [];
 
         // If images is an array
         if (Array.isArray(packageData.images) && packageData.images.length > 0) {
             return {
-                main: getUrl(packageData.images[0], 1200) || rootMain || defaultImage,
-                topRight: getUrl(packageData.images[1], 800) || rootGallery[0] || defaultImage,
-                bottomRight: getUrl(packageData.images[2], 800) || rootGallery[1] || defaultImage,
+                main: getUrl(packageData.images[0], { width: 1600, height: 900, quality: "good" }) || rootMain || defaultImage,
+                topRight: getUrl(packageData.images[1], { width: 800, height: 450, quality: "good" }) || rootGallery[0] || defaultImage,
+                bottomRight: getUrl(packageData.images[2], { width: 800, height: 450, quality: "good" }) || rootGallery[1] || defaultImage,
             };
         }
         // If images is an object
         return {
-            main: getUrl(imgs.hero, 1200) || getUrl(imgs.main, 1200) || rootMain || defaultImage,
-            topRight: getUrl(imgs.gallery?.[0], 800) || getUrl(imgs.topRight, 800) || rootGallery[0] || defaultImage,
-            bottomRight: getUrl(imgs.gallery?.[1], 800) || getUrl(imgs.bottomRight, 800) || rootGallery[1] || defaultImage,
+            main: getUrl(imgs.hero, { width: 1600, height: 900, quality: "good" }) || getUrl(imgs.main, { width: 1600, height: 900, quality: "good" }) || rootMain || defaultImage,
+            topRight: getUrl(imgs.gallery?.[0], { width: 800, height: 450, quality: "good" }) || getUrl(imgs.topRight, { width: 800, height: 450, quality: "good" }) || rootGallery[0] || defaultImage,
+            bottomRight: getUrl(imgs.gallery?.[1], { width: 800, height: 450, quality: "good" }) || getUrl(imgs.bottomRight, { width: 800, height: 450, quality: "good" }) || rootGallery[1] || defaultImage,
         };
     };
 
@@ -153,7 +159,7 @@ export default function PackageDetailPageClient({ packageData, category, destina
     const categoryName = packageData.category?.name || formatCategoryName(category || "Tours");
 
     return (
-        <div className="relative min-h-screen pb-20 bg-[#FAFAFA] text-[#1e293b] antialiased">
+        <div className="relative min-h-screen pb-20 bg-white text-[#1e293b] antialiased">
             <main className="relative min-h-screen pb-20">
                 <HeroGallery
                     images={images}
@@ -195,10 +201,10 @@ export default function PackageDetailPageClient({ packageData, category, destina
                                     experiences: day.experiences || [],
                                     stay: day.stay ? {
                                         ...day.stay,
-                                        image: getUrl(day.stay.image, 800)
+                                        image: getUrl(day.stay.image, { width: 900, height: 700, quality: "good" })
                                     } : undefined,
                                     images: (day.images && day.images.length > 0)
-                                        ? day.images.map((img: any) => getUrl(img, 800))
+                                        ? day.images.map((img: any) => getUrl(img, { width: 800, height: 600, quality: "good" }))
                                         : [],
                                 }))}
                             />
@@ -207,7 +213,7 @@ export default function PackageDetailPageClient({ packageData, category, destina
                         {/* Right Column: Sticky Sidebar */}
                         <div className="lg:col-span-4 relative">
                             <div className="sticky top-32">
-                                <div className="rounded-2xl bg-white border border-[#e2e8f0] p-6 overflow-hidden">
+                                <div className="rounded-[6px] bg-white border border-[#e2e8f0] p-6 overflow-hidden">
                                     <div className="relative z-10">
                                         <div className="flex items-end gap-2 mb-1">
                                             <p className="text-sm text-slate-500 font-medium">Starting from</p>
@@ -269,27 +275,29 @@ export default function PackageDetailPageClient({ packageData, category, destina
 
                                             {/* CTA */}
                                             <button
-                                                className="w-full py-4 px-6 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98]"
+                                                className="w-full py-4 px-6 bg-primary hover:bg-primary/90 text-white font-bold rounded-[6px] transition-all flex items-center justify-center gap-2 group transform active:scale-[0.98]"
                                                 type="button"
                                             >
                                                 Book This Experience
                                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                             </button>
-                                            <div className="text-center">
-                                                <p className="text-xs text-slate-400">Free cancellation up to 7 days before trip.</p>
-                                            </div>
                                         </form>
                                     </div>
                                 </div>
 
                                 {/* Need Help Card */}
-                                <div className="mt-6 rounded-xl bg-white p-4 flex items-center gap-4 border border-[#e2e8f0]">
+                                <div className="mt-6 rounded-[6px] bg-white p-4 flex items-center gap-4 border border-[#e2e8f0]">
                                     <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                         <HelpCircle className="w-5 h-5 text-primary" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-slate-900">Need customization?</p>
-                                        <a href="#" className="text-xs text-primary hover:text-primary/80 transition-colors font-medium hover:underline">
+                                        <a
+                                            href="https://wa.me/918979038079?text=Hi,%20I%27m%20interested%20in%20your%20tour%20packages.%20Can%20you%20help%20me?"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-primary hover:text-primary/80 transition-colors font-medium hover:underline"
+                                        >
                                             Chat with a Luxury Expert
                                         </a>
                                     </div>

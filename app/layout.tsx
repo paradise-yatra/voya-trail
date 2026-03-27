@@ -10,13 +10,18 @@ import { AuthProvider } from "@/contexts/AuthContext"
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] })
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" })
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", style: ["italic", "normal"] })
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://voyatrail.com"
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Voya Trail - Best Asian Travel Packages From All Over The World",
   description: "Discover the best Asian travel packages from all over the world with Voya Trail. Affordable Asian packages, custom tours & expert guides for unforgettable Asia adventures.",
   keywords: "Asian packages, best Asian packages, Asian packages from USA, cheap Asian packages, luxury Asian packages, Asia tour packages, Voya Trail Asian packages, worldwide Asian packages",
   authors: [{ name: "Voya Trail" }],
   publisher: "Voya Trail",
+  alternates: {
+    canonical: "/",
+  },
 }
 
 export default function RootLayout({
@@ -27,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta httpEquiv="Accept-CH" content="DPR, Width, Viewport-Width" />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
           rel="stylesheet"

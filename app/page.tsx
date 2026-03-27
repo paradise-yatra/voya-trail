@@ -270,7 +270,7 @@ export default function Home() {
                                 className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors group"
                               >
                                 <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 relative">
-                                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 100 })})` }} />
+                                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 100, height: 100, quality: "eco" })})` }} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="font-semibold text-gray-800 truncate group-hover:text-[#e42b28] transition-colors">{pkg.title}</p>
@@ -346,7 +346,9 @@ export default function Home() {
                 Explore Packages
               </Link>
               <Link
-                href="#"
+                href="https://www.youtube.com/@VoyaTrail"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-11 sm:h-12 flex-1 md:flex-initial min-w-0 md:min-w-[160px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-[#8B0000] px-4 sm:px-8 text-[13px] sm:text-base font-bold leading-normal tracking-[0.015em] text-white shadow-lg hover:bg-[#700000] active:scale-[0.98]"
               >
                 <PlayCircle size={18} />
@@ -424,7 +426,7 @@ export default function Home() {
                       className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                       aria-label={pkg.title}
                       style={{
-                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 400 })}")`,
+                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 480, height: 360, quality: "eco" })}")`,
                       }}
                     >
                       <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
@@ -519,7 +521,7 @@ export default function Home() {
                       className="relative aspect-[4/3] w-full rounded-t-xl bg-cover bg-center bg-no-repeat overflow-hidden"
                       aria-label={pkg.title}
                       style={{
-                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 400 })}")`,
+                        backgroundImage: `url("${optimizeCloudinaryUrl(pkg.mainImage || pkg.images?.hero?.url || '/placeholder.jpg', { width: 480, height: 360, quality: "eco" })}")`,
                       }}
                     >
                       <div className="absolute bottom-0 right-0 bg-black/70 text-white px-3 py-2 rounded-tl-xl z-10 font-bold">
@@ -1373,7 +1375,7 @@ export default function Home() {
             {/* Right Column: Support Widget */}
             <div className="lg:col-span-4 relative h-full">
               <div className="lg:sticky lg:top-28 flex flex-col gap-6">
-                <div className="p-8 rounded-2xl bg-card border border-border shadow-xl">
+                <div className="p-8 rounded-2xl bg-card border border-border">
                   <div className="flex items-center -space-x-4 mb-6">
                     <div
                       className="size-12 rounded-full border-4 border-background bg-gray-200 bg-cover bg-center"
@@ -1412,24 +1414,26 @@ export default function Home() {
                       <span className="text-base">✉</span>
                       Email Support
                     </a>
-                    <button className="flex items-center justify-center gap-2 h-11 w-full rounded-lg border border-border text-foreground">
-                      <span className="text-base">💬</span>
+                    <a href="https://wa.me/918979038079?text=Hi,%20I%27m%20interested%20in%20your%20tour%20packages.%20Can%20you%20help%20me?" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 h-11 w-full rounded-lg border border-border text-foreground">
+                      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-[#25D366]">
+                        <path d="M20.52 3.48A11.86 11.86 0 0 0 12.07 0C5.5 0 .16 5.34.16 11.9c0 2.1.55 4.15 1.6 5.96L0 24l6.3-1.65a11.9 11.9 0 0 0 5.76 1.47h.01c6.56 0 11.9-5.34 11.9-11.9 0-3.18-1.24-6.16-3.45-8.44ZM12.07 21.8h-.01a9.88 9.88 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.64-.24-.38a9.83 9.83 0 0 1-1.51-5.27c0-5.46 4.44-9.9 9.91-9.9 2.64 0 5.12 1.03 6.98 2.9a9.8 9.8 0 0 1 2.89 6.99c0 5.46-4.45 9.9-9.9 9.9Zm5.43-7.42c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.66.15-.2.3-.76.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.8-1.68-2.1-.18-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.66-1.6-.91-2.19-.24-.58-.48-.5-.66-.5h-.56c-.2 0-.52.08-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.47 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.48.71.3 1.27.48 1.7.62.72.23 1.37.2 1.89.12.58-.09 1.77-.72 2.02-1.41.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35Z" />
+                      </svg>
                       Chat on WhatsApp
-                    </button>
+                    </a>
                   </div>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-primary to-[#8B0000] text-white shadow-lg overflow-hidden relative cursor-pointer">
+                <a href="https://voyatrail.com/nepal-tours/pokhara/highlights-of-nepal--kathmandu-chitwan--pokhara" className="block p-6 rounded-2xl bg-gradient-to-br from-primary to-[#8B0000] text-white shadow-lg overflow-hidden relative cursor-pointer">
                   <div className="absolute top-0 right-0 p-4 opacity-20 transform rotate-12">
                     <span className="text-6xl">🌏</span>
                   </div>
                   <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">New Destinations</p>
-                  <h4 className="text-lg font-bold mb-3">Explore Japan in Autumn</h4>
+                  <h4 className="text-lg font-bold mb-3">Explore Nepal in 2026</h4>
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <span>View Itinerary</span>
                     <span className="text-sm">→</span>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </div>
@@ -1519,4 +1523,3 @@ export default function Home() {
     </main>
   )
 }
-

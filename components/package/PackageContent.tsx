@@ -78,7 +78,7 @@ export function PackageContent({
                 <p className="text-[#475569] text-lg leading-relaxed mb-6">
                     {overview.description}
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-white border border-[#e2e8f0]">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-[6px] bg-white border border-[#e2e8f0]">
                     <div className="flex flex-col gap-1">
                         <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">
                             Duration
@@ -111,7 +111,7 @@ export function PackageContent({
             </section>
 
             {/* What's Included */}
-            <section>
+            <section className="bg-white">
                 <h3 className="text-xl font-bold text-[#8B0000] mb-6">
                     Included Amenities
                 </h3>
@@ -119,7 +119,7 @@ export function PackageContent({
                     {amenities.map((amenity, index) => (
                         <div
                             key={index}
-                            className="flex items-center md:items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-white border border-[#e2e8f0]"
+                            className="flex items-center md:items-start gap-3 md:gap-4 p-3 md:p-4 rounded-[6px] bg-white border border-[#e2e8f0]"
                         >
                             <div className="bg-primary/10 p-2 md:p-2.5 rounded-lg text-primary shrink-0">
                                 <amenity.icon className="w-4 h-4 md:w-5 h-5" />
@@ -203,7 +203,7 @@ export function PackageContent({
                                 }}
                             >
                                 <div className="pl-16 pr-4 pb-8 pt-2">
-                                    <div className="bg-white rounded-xl p-6 border border-[#e2e8f0] shadow-sm">
+                                    <div className="bg-white rounded-[6px] p-6 border border-[#e2e8f0]">
                                         <div className="grid grid-cols-3 gap-3 mb-6">
                                             {day.images.map((img, idx) => (
                                                 <div
@@ -240,7 +240,7 @@ export function PackageContent({
                                                     </h5>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                         {day.experiences.map((exp, idx) => (
-                                                            <div key={idx} className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                            <div key={idx} className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-[6px] border border-slate-100">
                                                                 <div className="w-1 h-1 rounded-full bg-slate-400" />
                                                                 {exp}
                                                             </div>
@@ -256,7 +256,7 @@ export function PackageContent({
                                                         <Hotel className="w-4 h-4 text-[#8B0000]" />
                                                         Stay of the day
                                                     </h5>
-                                                    <div className="bg-white rounded-2xl border border-[#e2e8f0] overflow-hidden">
+                                                    <div className="bg-white rounded-[6px] border border-[#e2e8f0] overflow-hidden">
                                                         <div className="grid grid-cols-1 md:grid-cols-2">
                                                             <div className="relative h-48 md:h-full overflow-hidden">
                                                                 <img

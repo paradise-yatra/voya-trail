@@ -31,7 +31,7 @@ export function RelatedTours({ tours }: RelatedToursProps) {
                             <img
                                 alt={tour.title}
                                 className="w-full h-full object-cover"
-                                src={optimizeCloudinaryUrl(tour.image, { width: 400 })}
+                                src={optimizeCloudinaryUrl(tour.image, { width: 420, height: 420, quality: "eco" })}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                             <div className="absolute bottom-0 left-0 right-0 p-4 text-white">

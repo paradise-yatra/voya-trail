@@ -244,7 +244,7 @@ export const Header = () => {
             <div className={`hidden items-center space-x-6 md:flex ${isTransparent ? "text-white" : "text-slate-600"}`}>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <a href="tel:+918979038079" className="hover:underline">+91 8979038079</a>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
@@ -282,7 +282,7 @@ export const Header = () => {
           </nav>
 
           <div className="hidden items-center space-x-4 md:flex">
-            <Button asChild className="bg-black text-white shadow-lg transition-all duration-300 hover:bg-zinc-900 w-[120px] h-10 px-0 cursor-pointer">
+            <Button asChild className="bg-black text-white transition-all duration-300 hover:bg-zinc-900 w-[120px] h-10 px-0 cursor-pointer">
               <Link href="/payment">Pay Now</Link>
             </Button>
 
@@ -291,7 +291,7 @@ export const Header = () => {
               if (!open) setTimeout(() => setIsSuccess(false), 300)
             }}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg transition-all duration-300 hover:from-red-700 hover:to-red-900 hover:shadow-red-500/20 w-[120px] h-10 px-0 cursor-pointer">
+                <Button className="bg-gradient-to-r from-red-600 to-red-800 text-white transition-all duration-300 hover:from-red-700 hover:to-red-900 w-[120px] h-10 px-0 cursor-pointer">
                   Get Quote
                 </Button>
               </DialogTrigger>
@@ -589,7 +589,7 @@ export const Header = () => {
                   setIsMenuOpen(false)
                   setIsBookingOpen(true)
                 }}
-                className="flex-1 h-11 bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 cursor-pointer text-sm font-bold rounded-lg shadow-sm"
+                className="flex-1 h-11 bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 cursor-pointer text-sm font-bold rounded-lg"
               >
                 Get Quote
               </Button>
