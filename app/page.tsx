@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 
 import { publicAPI } from "@/lib/api"
+import { API_BASE_URL } from "@/lib/api-base"
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
 
 export default function Home() {
@@ -120,7 +121,7 @@ export default function Home() {
     const toastId = toast.loading("Subscribing...")
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/newsletter/public`, {
+      const response = await fetch(`${API_BASE_URL}/api/newsletter/public`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, source }),

@@ -1,10 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import { API_BASE_URL } from './api-base';
 
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     withCredentials: true, // Important: send cookies with requests
     headers: {
         'Content-Type': 'application/json',
@@ -12,7 +11,7 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 const publicApiClient: AxiosInstance = axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     withCredentials: false,
     headers: {
         'Content-Type': 'application/json',

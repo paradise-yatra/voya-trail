@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
+import { API_BASE_URL } from "@/lib/api-base"
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -33,8 +34,6 @@ export const Header = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const { toast } = useToast()
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
   const toggleMobileSection = (section: string) => {
     setMobileExpandedSection(mobileExpandedSection === section ? null : section)
@@ -103,7 +102,7 @@ export const Header = () => {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`${API_URL}/api/header-form-submissions/public`, {
+      const response = await fetch(`${API_BASE_URL}/api/header-form-submissions/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

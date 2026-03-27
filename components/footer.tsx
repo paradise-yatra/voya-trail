@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Mail, Phone, Instagram, Facebook, Youtube } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { toast } from "sonner"
+import { API_BASE_URL } from "@/lib/api-base"
 
 export function Footer() {
   const pathname = usePathname()
@@ -195,7 +196,7 @@ export function Footer() {
                   const toastId = toast.loading("Subscribing...")
 
                   try {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/newsletter/public`, {
+                    const response = await fetch(`${API_BASE_URL}/api/newsletter/public`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ email, source: 'footer' }),
