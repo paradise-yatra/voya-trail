@@ -19,7 +19,7 @@ export function Footer() {
         {/* 1. Brand Header */}
         <div className="flex justify-center mb-16 md:mb-24">
           <div className="text-[75px] font-medium tracking-tight text-primary dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
-            Voya Trail paradise yatra
+            Voya Trail paradise yatraa
           </div>
         </div>
 
