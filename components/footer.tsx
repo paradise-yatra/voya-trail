@@ -19,7 +19,7 @@ export function Footer() {
         {/* 1. Brand Header */}
         <div className="flex justify-center mb-16 md:mb-24">
           <div className="text-[75px] font-medium tracking-tight text-primary dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
-            Voya Trail paradise yatraa
+            Voya Trail 
           </div>
         </div>
 
@@ -30,7 +30,7 @@ export function Footer() {
             <h3 className="text-lg font-bold uppercase tracking-wider text-[#8B0000] dark:text-[#E63946] font-sans text-xs">
               Destinations
             </h3>
-            <h4>welcome in pradise company it is best company in dehradun </h4>
+         
             <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="/india-tours"

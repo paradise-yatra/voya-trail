@@ -269,7 +269,7 @@ export const Header = () => {
           </Link>
 
           <nav className="hidden items-center space-x-8 md:flex">
-            {["India", "Nepal", "Bali", "Bhutan", "Thailand"].map((country) => (
+            {["India", "Nepal", "Bali", "Bhutan", "Thailand","About"].map((country) => (
               <Link
                 key={country}
                 href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
