@@ -58,7 +58,7 @@ export default function AboutPage() {
             <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
               We design journeys that feel personal from the first conversation.
             </h1>
-
+          
             <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
               Voya Trail exists to make travel feel richer, calmer, and more memorable.
               We blend thoughtful planning with destination insight so every trip carries

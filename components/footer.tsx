@@ -27,11 +27,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-y-12 md:gap-x-0 border-t border-b border-gray-200 dark:border-gray-800 py-12 md:py-16">
           {/* Column 1: Destinations */}
           <div className="flex flex-col gap-6 md:pr-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-lg font-bold uppercase tracking-wider text-[#8B0000] dark:text-[#E63946] font-sans text-xs">
+            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
               Destinations
             </h3>
          
-            <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
+            <nav className="flex flex-col gap-3 text-md font-bold  leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="/india-tours"
                 className="hover:text-[#df2c28] transition-all duration-300"
@@ -66,11 +66,11 @@ export function Footer() {
           </div>
 
           {/* Column 2: Curated Experiences */}
-          <div className="flex flex-col gap-6 md:px-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-lg font-bold uppercase tracking-wider text-[#8B0000] dark:text-[#E63946] font-sans text-xs">
+          <div className="flex flex-col gap-6  md:px-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
+            <h3 className="text-2xl  font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
               Curated
             </h3>
-            <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
+            <nav className="flex flex-col gap-3  md:text leading-relaxed text-md font-bold  text-foreground dark:text-gray-200">
               <Link
                 href="#"
                 className="hover:text-[#df2c28] transition-all duration-300"
@@ -106,10 +106,11 @@ export function Footer() {
 
           {/* Column 3: The Journal */}
           <div className="flex flex-col gap-6 md:px-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-lg font-bold uppercase tracking-wider text-[#8B0000] dark:text-[#E63946] font-sans text-xs">
+            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
               The Journal
             </h3>
-            <nav className="flex flex-col gap-3 text-xl md:text-lg leading-relaxed text-foreground dark:text-gray-200">
+            <nav className="flex flex-col gap-3  md:text 
+            text-md font-bold  leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="#"
                 className="hover:text-[#df2c28] transition-all duration-300"
@@ -145,7 +146,7 @@ export function Footer() {
 
           {/* Column 4: Travel Concierge */}
           <div className="flex flex-col gap-6 md:pl-8 items-center md:items-start text-center md:text-left">
-            <h3 className="text-lg font-bold uppercase tracking-wider text-[#8B0000] dark:text-[#E63946] font-sans text-xs">
+            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
               Travel Concierge
             </h3>
             <div className="flex flex-col gap-4 mt-2 items-center md:items-start">
