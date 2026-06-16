@@ -14,11 +14,11 @@ export function Footer() {
   if (pathname?.startsWith("/admin")) return null
 
   return (
-    <footer className="w-full bg-background dark:bg-background-dark text-foreground pt-20 pb-10 border-t border-gray-200 dark:border-gray-800">
+    <footer className="w-full bg-black text-white pb-10 border-t border-gray-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col">
         {/* 1. Brand Header */}
-        <div className="flex justify-center mb-16 md:mb-24">
-          <div className="text-[75px] font-medium tracking-tight text-primary dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
+        <div className="flex justify-center ">
+          <div className="text-[65px] font-medium tracking-tight text-white dark:text-blue-400 italic" style={{ fontFamily: "var(--font-newsreader), 'Newsreader', serif" }}>
             Voya Trail 
           </div>
         </div>
@@ -27,38 +27,38 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-y-12 md:gap-x-0 border-t border-b border-gray-200 dark:border-gray-800 py-12 md:py-16">
           {/* Column 1: Destinations */}
           <div className="flex flex-col gap-6 md:pr-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
+            <h3 className="text-2xl font-bold uppercase  text-red-500 font-sans ">
               Destinations
             </h3>
          
             <nav className="flex flex-col gap-3 text-md font-bold  leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="/india-tours"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours India
               </Link>
               <Link
                 href="/nepal-tours"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Nepal
               </Link>
               <Link
                 href="/bhutan-tours"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Bhutan
               </Link>
               <Link
                 href="/bali-tours"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Bali
               </Link>
               <Link
                 href="/thailand-tours"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Tours Thailand
               </Link>
@@ -67,37 +67,37 @@ export function Footer() {
 
           {/* Column 2: Curated Experiences */}
           <div className="flex flex-col gap-6  md:px-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-2xl  font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
+            <h3 className="text-2xl  font-bold uppercase  text-red-500 font-sans ">
               Curated
             </h3>
             <nav className="flex flex-col gap-3  md:text leading-relaxed text-md font-bold  text-foreground dark:text-gray-200">
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Heritage Stays
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Wildlife Safaris
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Culinary Tours
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Wellness Retreats
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Luxury Trains
               </Link>
@@ -106,38 +106,38 @@ export function Footer() {
 
           {/* Column 3: The Journal */}
           <div className="flex flex-col gap-6 md:px-8 md:border-r border-gray-200 dark:border-gray-800 items-center md:items-start text-center md:text-left">
-            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
+            <h3 className="text-2xl font-bold uppercase  text-red-500  font-sans ">
               The Journal
             </h3>
             <nav className="flex flex-col gap-3  md:text 
             text-md font-bold  leading-relaxed text-foreground dark:text-gray-200">
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Editor&apos;s Picks
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Travel Guides
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Photography
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Cultural Insights
               </Link>
               <Link
                 href="#"
-                className="hover:text-[#df2c28] transition-all duration-300"
+                className="text-white hover:text-[#df2c28] transition-all duration-300"
               >
                 Sustainable Travel
               </Link>
@@ -146,7 +146,7 @@ export function Footer() {
 
           {/* Column 4: Travel Concierge */}
           <div className="flex flex-col gap-6 md:pl-8 items-center md:items-start text-center md:text-left">
-            <h3 className="text-2xl font-bold uppercase  text-[#8B0000] dark:text-[#E63946] font-sans ">
+            <h3 className="text-2xl font-bold uppercase  text-red-500 font-sans ">
               Travel Concierge
             </h3>
             <div className="flex flex-col gap-4 mt-2 items-center md:items-start">
@@ -162,20 +162,20 @@ export function Footer() {
                 <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-background-dark z-10" />
               </div>
               <div className="flex flex-col">
-                <p className="text-[22px] font-medium leading-tight italic text-foreground dark:text-white">
+                <p className="text-[22px] font-medium leading-tight italic text-white ">
                   Plan with us
                 </p>
-                <p className="text-[#4c669a] text-sm font-sans mt-1">Your Personal Travel Expert</p>
+                <p className="text-white text-sm font-sans mt-1">Your Personal Travel Expert</p>
               </div>
               <a
                 className="group flex items-center gap-2 text-primary dark:text-blue-400 font-sans font-medium text-sm mt-2 hover:text-[#df2c28] dark:hover:text-[#df2c28] transition-colors duration-300"
                 href="mailto:sales@voyatrail.com"
               >
                 <Mail className="w-[18px] h-[18px]" />
-                <span className="group-hover:underline">sales@voyatrail.com</span>
+                <span className="group-hover:underline text-white">sales@voyatrail.com</span>
               </a>
               <a
-                className="group flex items-center gap-2 text-primary dark:text-blue-400 font-sans font-medium text-sm hover:text-[#df2c28] dark:hover:text-[#df2c28] transition-colors duration-300"
+                className="group flex items-center gap-2 text-white dark:text-blue-400 font-sans font-medium text-sm hover:text-[#df2c28] dark:hover:text-[#df2c28] transition-colors duration-300"
                 href="tel:+918979038079"
               >
                 <Phone className="w-[18px] h-[18px]" />
@@ -218,9 +218,9 @@ export function Footer() {
                   }
                 }}
               >
-                <div className="flex border-b border-[#4c669a] pb-1">
+                <div className=" text-white flex border-b border-[#4c669a] pb-2">
                   <input
-                    className="bg-transparent border-none p-0 text-sm w-full placeholder:text-[#4c669a]/70 focus:ring-0 text-foreground dark:text-white outline-none"
+                    className="bg-transparent border-none p-0 text-sm w-full  focus:ring-0 text-white  outline-none"
                     placeholder="Join our newsletter"
                     type="email"
                     required
@@ -240,7 +240,7 @@ export function Footer() {
         {/* 3. Footer Bottom */}
         <div className="flex flex-col-reverse md:flex-row justify-between items-center pt-10 gap-6">
           {/* Legal Links */}
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-[#4c669a] dark:text-gray-500 font-sans tracking-wide">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-white dark:text-gray-500 font-sans tracking-wide">
             <span>© 2026 Voya Trail</span>
             <div className="hidden md:block w-px h-3 bg-gray-300 dark:bg-gray-700" />
             <Link href="/privacy" className="hover:text-[#df2c28] transition-colors">
@@ -258,13 +258,13 @@ export function Footer() {
           <div className="flex gap-6">
             <Link
               href="#"
-              className="text-[#4c669a] hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
+              className="text-white hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
             >
               <Instagram className="w-5 h-5" />
             </Link>
             <Link
               href="#"
-              className="text-[#4c669a] hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
+              className="text-white hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
@@ -272,7 +272,7 @@ export function Footer() {
             </Link>
             <Link
               href="#"
-              className="text-[#4c669a] hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
+              className="text-white hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
             >
               <Facebook className="w-5 h-5" />
             </Link>
@@ -280,7 +280,7 @@ export function Footer() {
               href="https://www.youtube.com/@VoyaTrail"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#4c669a] hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
+              className="text-white hover:text-red-600 transition-colors duration-300 dark:text-gray-400 dark:hover:text-red-500"
             >
               <Youtube className="w-5 h-5" />
             </Link>

@@ -7,7 +7,9 @@
         "dev": "nodemon --exec ts-node src/server.ts",
         "build": "tsc",
         "start": "node dist/server.js",
-        "create-admin": "ts-node src/scripts/createAdmin.ts"
+        "create-admin": "ts-node src/scripts/createAdmin.ts",
+        "check-db": "ts-node src/scripts/checkDb.ts",
+        "seed": "ts-node src/scripts/seed.ts"
     },
     "keywords": [
         "express",

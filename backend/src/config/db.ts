@@ -1,29 +1,39 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const connectDB = async (): Promise<void> => {
-    try {
-        const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/paradiseyatra';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-        await mongoose.connect(mongoURI);
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is missing in .env file");
+}
 
-        console.log('✅ MongoDB connected successfully');
-        console.log(`📊 Database: ${mongoose.connection.name}`);
-    } catch (error) {
-        console.error('❌ MongoDB connection error:', error);
-        process.exit(1);
-    }
+const globalAny = globalThis as any;
+
+if (!globalAny.mongoose) {
+  globalAny.mongoose = { conn: null, promise: null };
+}
+
+const cached = globalAny.mongoose;
+
+const connectDB = async () => {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI);
+  }
+
+  try {
+    cached.conn = await cached.promise;
+
+    console.log("MongoDB connected:", mongoose.connection.name);
+
+    return cached.conn;
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    throw err; // ❗ better than process.exit
+  }
 };
-
-// Handle connection events
-mongoose.connection.on('disconnected', () => {
-    console.log('⚠️  MongoDB disconnected');
-});
-
-mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB error:', err);
-});
 
 export default connectDB;

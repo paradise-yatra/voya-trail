@@ -110,6 +110,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             Categories
                         </a>
                         <a
+                            href="/admin/blogs"
+                            className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition-colors"
+                        >
+                            Blogs
+                        </a>
+                        <a
                             href="/admin/bookings"
                             className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition-colors"
                         >

@@ -3,10 +3,13 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
+import { autoSeedDB } from './config/autoSeed';
 import authRoutes from './routes/authRoutes';
 import tourRoutes from './routes/tourRoutes';
 import adminTourRoutes from './routes/adminTourRoutes';
 import publicCatalogRoutes from './routes/publicCatalogRoutes';
+import publicBlogRoutes from './routes/publicBlogRoutes';
+import adminBlogRoutes from './routes/adminBlogRoutes';
 
 // Force restart to pick up new routes
 
@@ -19,8 +22,10 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and Auto-Seed
+connectDB().then(() => {
+    autoSeedDB();
+});
 
 // Middleware
 app.use(
@@ -37,6 +42,8 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
 app.use('/api/admin', adminTourRoutes);
+app.use('/api/admin/blogs', adminBlogRoutes);
+app.use('/api/blogs', publicBlogRoutes);
 app.use('/api', publicCatalogRoutes);
 
 // Health check endpoint

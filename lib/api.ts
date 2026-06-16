@@ -113,6 +113,34 @@ export const adminToursAPI = {
     },
 };
 
+// Admin blogs API
+export const adminBlogsAPI = {
+    listBlogs: async () => {
+        const response = await apiClient.get('/api/admin/blogs');
+        return response.data;
+    },
+
+    getBlog: async (id: string) => {
+        const response = await apiClient.get(`/api/admin/blogs/${id}`);
+        return response.data;
+    },
+
+    createBlog: async (payload: any) => {
+        const response = await apiClient.post('/api/admin/blogs', payload);
+        return response.data;
+    },
+
+    updateBlog: async (id: string, payload: any) => {
+        const response = await apiClient.put(`/api/admin/blogs/${id}`, payload);
+        return response.data;
+    },
+
+    deleteBlog: async (id: string) => {
+        const response = await apiClient.delete(`/api/admin/blogs/${id}`);
+        return response.data;
+    },
+};
+
 // Public API
 export const publicAPI = {
     getPackages: async (params: { category?: string; location?: string; excludeCategory?: string; page?: number; limit?: number }) => {
@@ -130,7 +158,16 @@ export const publicAPI = {
     search: async (q: string) => {
         const response = await publicApiClient.get('/api/packages/search', { params: { q } });
         return response.data;
-    }
+    },
+    // Blogs
+    getBlogs: async (params?: { category?: string; q?: string; sort?: string }) => {
+        const response = await publicApiClient.get('/api/blogs', { params });
+        return response.data;
+    },
+    getBlogDetail: async (idOrSlug: string) => {
+        const response = await publicApiClient.get(`/api/blogs/${idOrSlug}`);
+        return response.data;
+    },
 };
 
 export default apiClient;

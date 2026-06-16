@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from "@/contexts/AuthContext"
+import { PhoneCall } from "lucide-react"
 
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] })
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" })
@@ -44,6 +45,15 @@ export default function RootLayout({
           {children}
           <Footer />
           <Toaster />
+          <a
+            href="https://wa.me/918979038079?text=Hi,%20I%27m%20interested%20in%20your%20tour%20packages.%20Can%20you%20help%20me?"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-white text-gray-800 px-5 py-2.5 rounded-full shadow-2xl border border-gray-200/80 hover:bg-gray-50 active:scale-95 transition-all duration-300 font-semibold text-sm cursor-pointer hover:shadow-xl"
+          >
+            <PhoneCall className="w-4 h-4 text-blue-600" />
+            <span>Talk to Agent</span>
+          </a>
         </AuthProvider>
       </body>
     </html>

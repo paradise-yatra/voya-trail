@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { publicAPI } from "@/lib/api"
 import { API_BASE_URL } from "@/lib/api-base"
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
+import { blogPosts } from "@/lib/blog-data"
 
 export default function Home() {
   const journeysRef1 = useRef<HTMLDivElement | null>(null)
@@ -17,6 +18,9 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<string | null>(null)
   const [signaturePackages, setSignaturePackages] = useState<any[]>([])
   const [exclusivePackages, setExclusivePackages] = useState<any[]>([])
+  const [isPackageLoading, setIsPackageLoading] = useState(true)
+  const blogCarouselRef = useRef<HTMLDivElement | null>(null)
+  const [activeBlogTab, setActiveBlogTab] = useState("all")
   const faq1Ref = useRef<HTMLDivElement | null>(null)
   const faq2Ref = useRef<HTMLDivElement | null>(null)
   const faq3Ref = useRef<HTMLDivElement | null>(null)
@@ -77,24 +81,50 @@ export default function Home() {
   // Fetch packages on mount
   React.useEffect(() => {
     const fetchPackages = async () => {
+      setIsPackageLoading(true)
       try {
         // Signature Escapes - India Packages
         // Try 'india' slug first, or 'india-tour-packages'
         let indiaRes = await publicAPI.getPackages({ category: 'india', limit: 10 })
-        if (!indiaRes.data || indiaRes.data.length === 0) {
+        if (!indiaRes?.data?.length) {
           indiaRes = await publicAPI.getPackages({ category: 'india-tours', limit: 10 })
         }
-        if (!indiaRes.data || indiaRes.data.length === 0) {
+        if (!indiaRes?.data?.length) {
           indiaRes = await publicAPI.getPackages({ category: 'india-tour-packages', limit: 10 })
         }
-        setSignaturePackages(indiaRes.data || [])
+        if (!indiaRes?.data?.length) {
+          indiaRes = await publicAPI.getPackages({ limit: 10 })
+        }
+
+        const customSignaturePackage = {
+          _id: '698f129c6dbbb2c36d4c808f',
+          slug: 'custom-signature-escape',
+          category: { slug: 'india-tours' },
+          title: 'Gangtok 6D 5N',
+          locations: ['Gangtok'],
+          duration: { nights: 5, days: 6 },
+          startingPrice: 2000,
+          mainImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
+        }
+
+        const signatureData = indiaRes?.data || []
+        const signaturePackagesWithCustom = signatureData.some((pkg: any) => pkg._id === customSignaturePackage._id)
+          ? signatureData
+          : [...signatureData, customSignaturePackage]
+
+        setSignaturePackages(signaturePackagesWithCustom)
 
         // Exclusive Journeys - Non-India Packages (using the slug that worked or 'india' as fallback for exclusion)
-        const excludeSlug = (indiaRes.data && indiaRes.data.length > 0 && indiaRes.data[0].category?.slug) ? indiaRes.data[0].category.slug : 'india'
+        const excludeSlug = (indiaRes?.data && indiaRes.data.length > 0 && indiaRes.data[0].category?.slug)
+          ? indiaRes.data[0].category.slug
+          : 'india'
+
         const exclusiveRes = await publicAPI.getPackages({ excludeCategory: excludeSlug, limit: 10 })
-        setExclusivePackages(exclusiveRes.data || [])
+        setExclusivePackages(exclusiveRes?.data || [])
       } catch (error) {
         console.error("Failed to fetch packages:", error)
+      } finally {
+        setIsPackageLoading(false)
       }
     }
 
@@ -195,6 +225,15 @@ export default function Home() {
     const amount = Math.min(el.clientWidth, 320) + 24
     el.scrollBy({ left: dir === "next" ? amount : -amount, behavior: "smooth" })
   }
+
+  const scrollBlog = (dir: "prev" | "next") => {
+    const el = blogCarouselRef.current
+    if (!el) return
+    const amount = Math.min(el.clientWidth, 350) + 24
+    el.scrollBy({ left: dir === "next" ? amount : -amount, behavior: "smooth" })
+  }
+
+
 
   return (
     <main className="bg-background overflow-x-hidden">
@@ -410,7 +449,9 @@ export default function Home() {
 
           <div ref={journeysRef2} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {signaturePackages?.length > 0 ? (
+              {isPackageLoading ? (
+                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+              ) : signaturePackages?.length > 0 ? (
                 signaturePackages.map((pkg, index) => (
                   <div
                     key={pkg._id || index}
@@ -451,7 +492,7 @@ export default function Home() {
                   </div>
                 ))
               ) : (
-                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+                <div className="w-full text-center py-10 text-muted-foreground">No signature escapes available right now.</div>
               )}
             </div>
           </div>
@@ -505,7 +546,9 @@ export default function Home() {
 
           <div ref={journeysRef1} className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth">
             <div className="flex items-stretch gap-6 px-4">
-              {exclusivePackages?.length > 0 ? (
+              {isPackageLoading ? (
+                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+              ) : exclusivePackages?.length > 0 ? (
                 exclusivePackages.map((pkg, index) => (
                   <div
                     key={pkg._id || index}
@@ -546,7 +589,7 @@ export default function Home() {
                   </div>
                 ))
               ) : (
-                <div className="w-full text-center py-10 text-muted-foreground">Loading packages...</div>
+                <div className="w-full text-center py-10 text-muted-foreground">No exclusive journeys available right now.</div>
               )}
             </div>
           </div>
@@ -793,279 +836,135 @@ export default function Home() {
                 <p className="text-gray-300 text-xs">City of Dreams</p>
               </div>
             </Link>
-
-
           </div>
         </div>
       </section>
 
-      {/* Travel Log Section */}
+      {/* Blog Section (Journeys, Stories & Tips) */}
       <section className="py-16 sm:py-24 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          
           {/* Section Header */}
-          <div className="mb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
-              <h2 className="text-[36px] font-black tracking-tight text-[#8B0000]">Traveler&apos;s Daily</h2>
-              <p className="text-muted-foreground text-sm md:text-base max-w-xl mt-1">
-                Curated stories, latest guides, and daily inspiration for your next journey.
-              </p>
-            </div>
-          </div>
-
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 auto-rows-[180px] gap-4">
-            {/* Latest Stories List */}
-            <div className="col-span-1 row-span-3 bg-card rounded-xl border border-border flex flex-col overflow-hidden order-last md:order-first">
-              <div className="p-4 border-b border-border/80 flex justify-between items-center">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <span className="text-primary text-lg">📖</span>
-                  <span>Latest Stories</span>
-                </h3>
-                <button className="text-xs font-medium text-primary">View All</button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-2 space-y-1">
-                <div className="flex gap-3 p-2 rounded-lg cursor-pointer">
-                  <div
-                    className="w-16 h-16 rounded-lg bg-gray-200 bg-cover bg-center shrink-0 shadow-sm"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBA_Op1-TADkDvkcZgO6vYhQUYBp9WDn0xSI4M2_4zJlQuOZLtjJVb2cGanbB2ALF_G8S8wi5Hd5Aqx8dmDEg9LseRq84P7xupuV0ghKUAh8Yasz1DYYAtdZgC1yjZ0_fjnaAYoS_KxYCchg2yzaSSm-JD4lDnhwxuVPe6x5u1hvZAzjk7N0A1XoxL09PURlmIGRx7hyRCBTWujzLoS4ekO_aDHCFWF8m1i9CnKWw2zhkD0kpdthYf64LhQXfEcp-d8eP1g2nMsOGR5')",
-                    }}
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wide mb-0.5">Beaches</span>
-                    <h4 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-                      Hidden gems of Goa beyond the parties
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">4 min read</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 p-2 rounded-lg cursor-pointer">
-                  <div
-                    className="w-16 h-16 rounded-lg bg-gray-200 bg-cover bg-center shrink-0 shadow-sm"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAgvhUNOoNjr5ky0LFlN6X-U3mR3UErZ7MiUosjqxBb09gXaZr5e8TErkyRwjgGclnwDIVX5rfgzDNDsZQykFn0FVKV7HyUjxa2AhsaSoccPETruRFqH9c7cWsUwiXQDbOxFYdxbqLs6D66pi2hDz7nKmDC_8bV8R98IF58J-Mf-9jmCkuZbWBvqE1qTx0um-e-jOs2zoMYuWLXvdPHLq-7vqOXfBQXkB7Oz8XY-UC08piDGxlRQBvFwauOHVaJ8EpvfH9o6UHxHfpC')",
-                    }}
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wide mb-0.5">Adventure</span>
-                    <h4 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-                      Motorcycling through Ladakh&apos;s highest passes
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">8 min read</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 p-2 rounded-lg cursor-pointer">
-                  <div
-                    className="w-16 h-16 rounded-lg bg-gray-200 bg-cover bg-center shrink-0 shadow-sm"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCy9s3HOYxh1OENXlJlwD81IT1u-efEyQJKSKAWmKWd1bxT6BN_nwpRt-vPjxDA7V-9QfrYpE3Eu1cGZexh5O4zzvnG6Lz68TnfNHg1Qo1wjc-RtDUEZmnTBrGiX479tKLA9gvcSi0Z8482GQTAGYHmfPK5rCip5KnsdbVI0UxXA6SDYiS9BDcPVqwr2NeuAu2VNtDUJ2coRhMTTwEEe45T0OFJBq453cUbTPoCXeF3Qh4QSmNcDrc-aeoD5_1E63kYl2xoZLxBgacU')",
-                    }}
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-teal-500 uppercase tracking-wide mb-0.5">Wellness</span>
-                    <h4 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-                      Finding inner peace in Rishikesh
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">6 min read</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 p-2 rounded-lg cursor-pointer">
-                  <div
-                    className="w-16 h-16 rounded-lg bg-gray-200 bg-cover bg-center shrink-0 shadow-sm"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAYlGPkvKUJIg9vEn_3Fcy4TKtA78Bm3K6KPi8dC1BPmeuTIePfKN5o2bQi6SbDJHKj1697u7PnfG6WjDY6c3DFIHQlaW8My7lSULZrj1rg8PAEoBY-4foi7CgNK4il45S27y3lfoRr_m66oV8EopMUo3mU14DOXG6MOTxBvNY5eNFR5cUoqSDsG_MF3kwBawT9sh0QBAMQ2yz6LuLkOTXb-Md50YPcph6dZRhDZpIi0kfM8ZRTvqiImyZ_SyeRjKdOWCHAuSHbGwPH')",
-                    }}
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-purple-500 uppercase tracking-wide mb-0.5">Culture</span>
-                    <h4 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-                      Royal dining in Udaipur&apos;s palaces
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">5 min read</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 p-2 rounded-lg cursor-pointer">
-                  <div
-                    className="w-16 h-16 rounded-lg bg-gray-200 bg-cover bg-center shrink-0 shadow-sm"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCyQ5HiD9eaAYWxysjj-BviJSbzJMAJShcvu4Miywtv9Rty8ndpD_uKpxMo5RoQUcmEvUKMsQu3dpYjfoRGXJ8HZnE05Bq2hT3NIJRLNsTyckqNCBuqpvob5IylAJ0HcUgm83XzGiVTz6FZqjPW2T1RutpYlStjHGb0Yt2P1uxPCAr7CZnVdpcdnaDMfe8nKMJYhKKSSeYzU_9Uzu9SxOiKaQSMmFX7isK3AMhY8cl2FrJFtqusfPjUnFx9AOKa0GMlhOek45lHPtGa')",
-                    }}
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-0.5">City Guide</span>
-                    <h4 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-                      A weekend in Mumbai
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">3 min read</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Post of the Day Hero */}
-            <div className="relative col-span-1 md:col-span-2 row-span-2 rounded-xl overflow-hidden cursor-pointer">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDn6kp5aSWYEwFPgBMqr2VsFfaxpZY0hIU9UgeQVstZ0ZrS-4KUDroOyRvcAdRZFyKb4lWond-C9iHTRl4HxxX2FEIE3GzwhU58Xn3kyOBpyzcVU1qzyBJpTEod92wYBQBXBj0XF6S5UDKLnmlKyu-zRF1ZWgeizcKSkkb3i1dcL5IYSuxoyaZ6iaqLphXTfDMOKLBJEMmOP512W6KXUhMsnpRT8TGG47H7umc_QPwwiSuYiat5jazfR2au0_WCdl_rwNaZ_a1hN8_L')",
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-90" />
-              <div className="absolute top-6 left-6 flex items-center gap-2">
-                <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30 flex items-center gap-1">
-                  <span>✔</span>
-                  <span>Post of the Day</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-[2px] bg-[#2563eb]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-[#2563eb]">
+                  Updates & Insights
                 </span>
               </div>
-              <div className="absolute bottom-0 left-0 w-full p-6 md:p-8">
-                <div className="mb-4 flex items-center gap-3 text-white/80 text-sm">
-                  <div className="size-6 rounded-full bg-orange-500 flex items-center justify-center text-[10px] font-bold text-white">
-                    AS
-                  </div>
-                  <span>By Ananya Sharma</span>
-                  <span className="size-1 rounded-full bg-white/50" />
-                  <span>Oct 24, 2024</span>
-                </div>
-                <h3 className="text-white text-3xl md:text-4xl font-bold mb-3 leading-tight max-w-lg">
-                  Spiritual Awakening on the Ghats of Varanasi
-                </h3>
-                <p className="text-gray-200 text-sm md:text-base max-w-xl leading-relaxed">
-                  Experience the spiritual heart of India along the sacred Ganges river. We spent three days documenting the
-                  ancient Ganga Aarti ceremony and the people who call this holy city home.
-                </p>
-              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Journeys, Stories & Tips
+              </h2>
             </div>
-
-            {/* Travel Digest Signup */}
-            <div className="col-span-1 row-span-1 rounded-xl bg-foreground text-background p-5 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <span className="text-5xl">✉️</span>
-              </div>
-              <div>
-                <h4 className="font-bold text-lg">Travel Digest</h4>
-                <p className="text-xs text-muted-foreground mt-1">Join 25,000+ travelers.</p>
-              </div>
-              <form
-                className="flex gap-2 mt-4"
-                onSubmit={(e) => handleNewsletterSubmit(e, 'travel-digest')}
+            
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setActiveBlogTab("all")}
+                className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 cursor-pointer ${
+                  activeBlogTab === "all"
+                    ? "bg-[#0b151f] text-white"
+                    : "bg-[#eaeff4] text-[#4f5e71] hover:bg-slate-200"
+                }`}
               >
-                <input
-                  type="email"
-                  required
-                  placeholder="Email"
-                  className="w-full bg-background/10 border-0 rounded-lg text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary text-background h-9 px-3"
-                />
-                <button
-                  type="submit"
-                  className="bg-primary text-white rounded-lg px-3 h-9 flex items-center justify-center text-xs font-semibold"
-                >
-                  Go
-                </button>
-              </form>
+                ALL POSTS
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveBlogTab("travel")}
+                className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 cursor-pointer ${
+                  activeBlogTab === "travel"
+                    ? "bg-[#0b151f] text-white"
+                    : "bg-[#eaeff4] text-[#4f5e71] hover:bg-slate-200"
+                }`}
+              >
+                TRAVEL
+              </button>
+              <Link
+                href="/blog"
+                className="text-xs sm:text-sm font-bold text-[#2563eb] hover:underline uppercase pl-2 flex items-center gap-1"
+              >
+                VIEW ALL
+              </Link>
             </div>
+          </div>
 
-            {/* Jaipur Feature */}
-            <div className="relative col-span-1 row-span-1 rounded-xl overflow-hidden cursor-pointer">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDHDY7rV2X300mU_h-4ODd4D7pKM-jIy4VVdGh81kpyG6aeLYgcgr6jPqRu8_odBSObiCY-4drqORH27RK3tM8ZnZjRLdOVdomlPgt93GNKPWap0DVE0A6QQ2lMLoaJ9mSB9jFYoRaG6GDBKUnWaHzpaeLV0Vl79NZElkCmjwDqUaWDHQ1nqQlSpWl-9g0slS1Ca8BWm0NLuI3goMvAlWJNr8Kbk0z-2ggbKAIE6mTGqI15yc3rEHGde_f0cPlz39JLQWoG0807Ty2')",
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-pink-900/90 to-transparent" />
-              <div className="absolute top-3 right-3">
-                <span className="bg-white/90 text-pink-900 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
-                  Editor&apos;s Pick
-                </span>
-              </div>
-              <div className="absolute bottom-4 left-4 right-4">
-                <h4 className="text-white font-bold text-lg leading-tight mb-1">Architecture of Jaipur</h4>
-                <div className="flex items-center gap-1 text-pink-200 text-xs">
-                  <span>Read Story</span>
-                  <span className="text-sm">→</span>
-                </div>
-              </div>
-            </div>
+          {/* Carousel Slider */}
+          <div className="relative group">
+            {/* Left Scroll Button */}
+            <button
+              type="button"
+              onClick={() => scrollBlog("prev")}
+              className="absolute left-[-22px] top-[35%] -translate-y-1/2 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-white text-foreground shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-gray-50 focus:outline-none cursor-pointer"
+              aria-label="Previous Post"
+            >
+              <ChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
 
-            {/* Trending Guides */}
-            <div className="col-span-1 md:col-span-2 row-span-1 bg-card rounded-xl border border-border p-4 flex flex-col justify-between">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <span className="text-emerald-500">🗺️</span>
-                  <span>Trending Guides</span>
-                </h3>
-                <button className="text-xs font-medium text-muted-foreground">See all guides</button>
-              </div>
-              <div className="grid grid-cols-2 gap-4 h-full">
-                <div className="relative rounded-lg overflow-hidden h-full min-h-[100px] cursor-pointer">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5meJEod1yf3cHjao9EfaNzOCr7ibL8ruyeqRvfGo3vzE17Jt_ECk-VBcA1cJovBcC83CDZ6OoHGdjX7W3NDVgDjrMzcerP9877_olMPZ8jGOTYnOqHWBbLTOKYB2F13KiR-l-N3sFcbyhYMeH6KCR3nk6vFG9PboL5h0uKtIE7hpxiicrCgf7xLX9R2R6bkyz4-r84HWNQtLMx6Vlbhs1sUs2bQR8R8ZlawCQEGBZnxS0EmRN8AaUkxu0GU_hj-6ad_jA_vOPUZyf')",
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/40" />
-                  <div className="absolute bottom-3 left-3">
-                    <p className="text-[10px] font-bold text-emerald-300 uppercase">Nature</p>
-                    <p className="text-white font-bold text-sm">Kerala Backwaters</p>
-                  </div>
-                </div>
-                <div className="relative rounded-lg overflow-hidden h-full min-h-[100px] cursor-pointer">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBxMU5V6ghuh6nYJYJ9QoNSK6qo8kR3YX2l1szGX0I7PD1rlxnBbDC3z4NLvXX2SgK62431HzLeO5Kx0Xril5QB-phQpWjGJyeEpwDTfaRSNx0DpMnhUCFtJgwxoep9a-baeDYrNU2KOHiIV6K-gUs6EcfK8AybPG1kzxuUWwIc0-Pi_LmOGnJ4sBbPRcHHa0-nBpG-QJ8XodiPOfwspn6eNbZWcgpQhsV0pV-1P7BgB5ML33OJawZHeJPKF1jPw8e8rFZ4gJJGgcMK')",
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/50" />
-                  <div className="absolute bottom-3 left-3">
-                    <p className="text-[10px] font-bold text-blue-300 uppercase">Essentials</p>
-                    <p className="text-white font-bold text-sm">First Time India</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Right Scroll Button */}
+            <button
+              type="button"
+              onClick={() => scrollBlog("next")}
+              className="absolute right-[-22px] top-[35%] -translate-y-1/2 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-white text-foreground shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-gray-50 focus:outline-none cursor-pointer"
+              aria-label="Next Post"
+            >
+              <ChevronRight className="h-6 w-6 text-gray-700" />
+            </button>
 
-            {/* Travel Podcast Card - 1x1 */}
-            <div className="col-span-1 row-span-1 rounded-xl overflow-hidden relative group cursor-pointer border border-border">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                style={{
-                  backgroundImage: "url('/travel-podcast.png')",
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-              <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 animate-pulse z-10">
-                <span className="size-1.5 bg-white rounded-full"></span>
-                LIVE NOW
-              </div>
-              <div className="absolute bottom-4 left-4 right-4 text-white z-10">
-                <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-1">Audio Journal</p>
-                <h4 className="font-bold text-base leading-tight group-hover:text-primary transition-colors">Stories of the Road</h4>
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="size-7 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center group-hover:bg-primary transition-all">
-                    <span className="text-[10px] ml-0.5">▶</span>
-                  </div>
-                  <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
-                    <div className="w-1/3 h-full bg-primary" />
-                  </div>
-                </div>
+            {/* Scrollable Container */}
+            <div
+              ref={blogCarouselRef}
+              className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth"
+            >
+              <div className="flex items-stretch gap-6 px-4">
+                {/* Filtered Posts */}
+                {blogPosts
+                  .filter((post) => activeBlogTab === "all" || post.category.toLowerCase() === activeBlogTab)
+                  .map((post) => (
+                    <div
+                      key={post.id}
+                      className="relative flex w-80 sm:w-[350px] flex-col gap-3 rounded-xl bg-card transition-all duration-300 shrink-0 group/card cursor-pointer"
+                    >
+                      <Link href={`/blogdetail?id=${post.id}`} className="absolute inset-0 z-20" />
+                      
+                      {/* Image container */}
+                      <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-muted">
+                        <div
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover/card:scale-105"
+                          style={{
+                            backgroundImage: `url(${post.image})`,
+                          }}
+                        />
+                      </div>
+
+                      {/* Metadata (Category & Date) */}
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-[#2563eb] text-[11px] font-bold uppercase tracking-wider">
+                          {post.category}
+                        </span>
+                        <span className="text-gray-300 mx-1.5 text-xs">•</span>
+                        <span className="text-xs text-muted-foreground font-semibold">
+                          {post.date}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col gap-1.5 pr-2">
+                        <h3 className="text-base sm:text-lg font-bold text-foreground leading-snug group-hover/card:text-[#2563eb] transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
+          
         </div>
       </section>
 

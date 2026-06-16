@@ -119,12 +119,20 @@ export default function PackageDetailPageClient({ packageData, category, destina
     };
 
     const packageAmenities = packageData.amenityIds || packageData.amenities || [];
-    const displayAmenities = packageAmenities.length > 0
-        ? packageAmenities.map((item: string) => ({
-            icon: amenityIconMap[item] || Star,
-            title: item,
-            description: "Included in your package",
-        }))
+    const displayAmenities = Array.isArray(packageAmenities) && packageAmenities.length > 0
+        ? packageAmenities.map((item: any) => {
+            const title = typeof item === 'string'
+                ? item
+                : item?.label || item?.name || item?.title || 'Amenity';
+
+            const iconKey = typeof item === 'object' ? item.iconKey : title;
+
+            return {
+                icon: amenityIconMap[iconKey] || amenityIconMap[title] || Star,
+                title,
+                description: "Included in your package",
+            };
+        })
         : [
             {
                 icon: Hotel,

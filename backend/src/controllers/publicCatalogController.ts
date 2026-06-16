@@ -4,7 +4,20 @@ import TourCategory from '../models/TourCategory';
 
 const normalizeSlug = (value: string): string =>
   value.trim().toLowerCase().replace(/^\/+|\/+$/g, '');
+const resolveCategorySlugs = (slug: string): string[] => {
+  const normalized = normalizeSlug(slug)
+  const aliases = [normalized]
 
+  if (normalized === 'india-tours' || normalized === 'india-tour-packages') {
+    aliases.unshift('india')
+  }
+
+  if (normalized === 'india') {
+    aliases.push('india-tours')
+  }
+
+  return Array.from(new Set(aliases))
+}
 const mapTourForListing = (tour: any) => ({
   ...tour,
   mainImage: tour.mainImage || tour.images?.hero?.url || '',
@@ -30,9 +43,9 @@ export const listPublicPackages = async (req: Request, res: Response): Promise<v
 
     let categoryFilter: any = {};
     if (categorySlug) {
-      const normalizedCategorySlug = normalizeSlug(categorySlug);
+      const categorySlugs = resolveCategorySlugs(categorySlug);
       const category = await TourCategory.findOne({
-        slug: { $in: [normalizedCategorySlug, `/${normalizedCategorySlug}`] },
+        slug: { $in: [...categorySlugs, ...categorySlugs.map(slug => `/${slug}`)] },
         isActive: true,
       }).select('_id');
 
@@ -49,9 +62,9 @@ export const listPublicPackages = async (req: Request, res: Response): Promise<v
     }
 
     if (excludeCategorySlug) {
-      const normalizedExcludeSlug = normalizeSlug(excludeCategorySlug);
+      const excludeCategorySlugs = resolveCategorySlugs(excludeCategorySlug);
       const excludeCat = await TourCategory.findOne({
-        slug: { $in: [normalizedExcludeSlug, `/${normalizedExcludeSlug}`] },
+        slug: { $in: [...excludeCategorySlugs, ...excludeCategorySlugs.map(slug => `/${slug}`)] },
         isActive: true,
       }).select('_id');
       if (excludeCat) {
@@ -158,9 +171,9 @@ export const listPublicCategories = async (_req: Request, res: Response): Promis
  */
 export const getPublicCategoryBySlug = async (req: Request, res: Response): Promise<void> => {
   try {
-    const normalizedSlug = normalizeSlug(req.params.slug);
+    const categorySlugs = resolveCategorySlugs(req.params.slug);
     const category = await TourCategory.findOne({
-      slug: { $in: [normalizedSlug, `/${normalizedSlug}`] },
+      slug: { $in: [...categorySlugs, ...categorySlugs.map(slug => `/${slug}`)] },
       isActive: true,
     }).lean();
 

@@ -92,6 +92,7 @@ export default function CategoryPage() {
     };
 
     const displayName = getDisplayName();
+    const isIndiaPage = categorySlug === "india-tours";
 
     // Logic to get the hero image based on category slug
     const getHeroImage = () => {
@@ -302,100 +303,39 @@ export default function CategoryPage() {
                                 <p className="text-gray-500 text-sm md:text-base">
                                     {category?.description || `Discover curated packages for ${displayName}`}
                                 </p>
-                            </div>
+                            </div>    
                         </div>
 
                         {/* Package List */}
-                        <div className="flex flex-col gap-6">
-                            {loading ? (
-                                <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                    <Loader2 className="w-8 h-8 text-[#e42b28] animate-spin" />
-                                    <p className="text-gray-400 font-medium">Curating your experiences...</p>
-                                </div>
-                            ) : packages.length > 0 ? (
-                                packages.map((pkg) => (
-                                    <div key={pkg._id} className="group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden flex flex-col md:flex-row h-auto md:h-64">
-                                        {/* Image */}
-                                        <div className="w-full md:w-2/5 relative overflow-hidden h-48 md:h-auto">
-                                            <div
-                                                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
-                                                style={{
-                                                    backgroundImage: `url(${optimizeCloudinaryUrl(pkg.mainImage, { width: 640, height: 420, quality: "eco" })})`,
-                                                }}
-                                            />
-                                        </div>
-                                        {/* Content */}
-                                        <div className="flex-1 p-5 flex flex-col justify-between">
-                                            <div>
-                                                <div className="mb-2">
-                                                    <h4 className="text-lg font-bold text-[#0d1b10] group-hover:text-[#e42b28] transition-colors line-clamp-1">
-                                                        {pkg.title}
-                                                    </h4>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                                                    <div className="flex items-center gap-1">
-                                                        <Clock className="w-4 h-4" />
-                                                        {(pkg.duration?.nights ?? pkg.durationNights ?? 0)}N / {(pkg.duration?.days ?? pkg.durationDays ?? 0)}D
-                                                    </div>
-                                                    <div className="flex items-center gap-1">
-                                                        <Users className="w-4 h-4" />
-                                                        {pkg.minPeople && pkg.maxPeople
-                                                            ? `${pkg.minPeople}-${pkg.maxPeople}`
-                                                            : (pkg.maxPeople || 12)} People
-                                                    </div>
-                                                </div>
-
-                                                {/* What's Inside / Highlights */}
-                                                <div className="bg-[#f9fafb]/50 rounded-md p-3 mb-4 border border-dashed border-gray-200">
-                                                    <p className="text-xs font-semibold text-gray-400 uppercase mb-1">
-                                                        Highlights
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {pkg.highlights && pkg.highlights.length > 0 ? (
-                                                            pkg.highlights.map((hl, idx) => (
-                                                                <span key={idx} className="text-xs font-medium text-[#0d1b10] bg-white px-2 py-1 rounded border border-gray-100">
-                                                                    {hl}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <>
-                                                                <span className="text-xs font-medium text-[#0d1b10] bg-white px-2 py-1 rounded border border-gray-100">
-                                                                    Sightseeing
-                                                                </span>
-                                                                <span className="text-xs font-medium text-[#0d1b10] bg-white px-2 py-1 rounded border border-gray-100">
-                                                                    Guided Tour
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-end justify-between border-t border-gray-100 pt-4">
-                                                <div>
-                                                    <p className="text-xs text-gray-400">Starting from</p>
-                                                    <p className="text-xl font-bold text-[#e42b28]">
-                                                        {formatPrice(pkg.startingPrice || pkg.basePrice || 0)}{" "}
-                                                        <span className="text-sm font-normal text-gray-500">/ {pkg.priceUnit || 'per person'}</span>
-                                                    </p>
-                                                </div>
-                                                <Link
-                                                    href={`/${categorySlug}/${(pkg.locations?.[0] || 'trip').toLowerCase().replace(/\s+/g, '-')}/${pkg.slug}`}
-                                                    className="px-6 py-2.5 rounded-md bg-[#0d1b10] text-white text-sm font-bold hover:bg-[#9f0712] transition-all duration-200 flex items-center gap-2"
-                                                >
-                                                    View Details
-                                                    <ArrowRight className="w-4 h-4" />
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-20 border-2 border-dashed border-gray-100 rounded-xl">
-                                    <p className="text-gray-400">No experiences found in this category yet.</p>
-                                </div>
-                            )}
-                        </div>
+                       <div className="flex flex-col gap-6">
+  {/* Card 1 */}
+  <div className="group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden mb-6">
+    <div className="w-full h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=640&q=80')" }} />
+    <div className="p-4">
+      <h4 className="text-lg font-bold text-[#0d1b10] group-hover:text-[#e42b28] transition-colors">Pokhara Lakeside Retreat</h4>
+      <p className="text-sm text-gray-500">4 Nights / 5 Days – Lakeside relaxation in Pokhara</p>
+      <p className="text-xl font-bold text-[#e42b28] mt-2">$950</p>
+    </div>
+  </div>
+  {/* Card 2 */}
+  <div className="group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden mb-6">
+    <div className="w-full h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=640&q=80')" }} />
+    <div className="p-4">
+      <h4 className="text-lg font-bold text-[#0d1b10] group-hover:text-[#e42b28] transition-colors">Chitwan Wildlife Safari</h4>
+      <p className="text-sm text-gray-500">3 Nights / 4 Days – Safari in Chitwan National Park</p>
+      <p className="text-xl font-bold text-[#e42b28] mt-2">$800</p>
+    </div>
+  </div>
+  {/* Card 3 */}
+  <div className="group bg-white rounded-md border border-gray-200 hover:border-[#9f0712]/30 transition-all duration-300 overflow-hidden mb-6">
+    <div className="w-full h-48 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1529333166430-cb44f61ba1c9b2?auto=format&fit=crop&w=640&q=80')" }} />
+    <div className="p-4">
+      <h4 className="text-lg font-bold text-[#0d1b10] group-hover:text-[#e42b28] transition-colors">Lumbini Spiritual Retreat</h4>
+      <p className="text-sm text-gray-500">2 Nights / 3 Days – Visit the birthplace of Buddha and meditative sessions</p>
+      <p className="text-xl font-bold text-[#e42b28] mt-2">$700</p>
+    </div>
+  </div>
+</div>
 
                         {/* Pagination */}
                         {pagination.pages > 1 && (
