@@ -57,16 +57,18 @@ export const authAPI = {
 // Admin tours & media API
 export const adminToursAPI = {
     uploadTourImage: async (file: File, folder?: string) => {
-        const formData = new FormData();
-        formData.append('image', file);
-        if (folder) {
-            formData.append('folder', folder);
-        }
+        const toBase64 = (f: File): Promise<string> => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(f);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
 
-        const response = await apiClient.post('/api/packages/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+        const base64Data = await toBase64(file);
+
+        const response = await apiClient.post('/api/admin/uploads/tour-image', {
+            file: base64Data,
+            folder: folder
         });
         return response.data;
     },

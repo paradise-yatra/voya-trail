@@ -270,10 +270,10 @@ export const Header = () => {
 
           <nav className="hidden items-center space-x-8 md:flex">
             
-            {["India", "Nepal", "Bali", "Bhutan", "Thailand","About"].map((country) => (
+            {["India", "Nepal", "Bali", "Bhutan", "Thailand", "Blogs", "About"].map((country) => (
               <Link
                 key={country}
-                href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
+                href={country === "Blogs" ? "/blog" : `/${country.toLowerCase().replace(" ", "-")}-tours`}
                 className={`text-sm font-semibold transition-colors hover:text-red-600 ${isTransparent ? "text-white hover:text-red-500" : "text-slate-700"}`}
               >
                 {country}
@@ -556,13 +556,13 @@ export const Header = () => {
       >
         <div className="border-t bg-white dark:bg-zinc-900 shadow-lg">
           <div className="px-4 py-3">
-            {["India", "Nepal", "Bali", "Bhutan", "Thailand"].map((country, index) => (
+            {["India", "Nepal", "Bali", "Bhutan", "Thailand", "Blogs", "About"].map((country, index) => (
               <div
                 key={country}
                 className="border-b border-slate-100 dark:border-zinc-800 last:border-0"
               >
                 <Link
-                  href={`/${country.toLowerCase().replace(" ", "-")}-tours`}
+                  href={country === "Blogs" ? "/blog" : `/${country.toLowerCase().replace(" ", "-")}-tours`}
                   onClick={() => setIsMenuOpen(false)}
                   className="mobile-menu-item flex w-full items-center justify-between py-4 text-left"
                   style={{ animationDelay: `${index * 50}ms` }}

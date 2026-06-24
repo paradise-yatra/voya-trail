@@ -8,7 +8,6 @@ import { toast } from "sonner"
 import { publicAPI } from "@/lib/api"
 import { API_BASE_URL } from "@/lib/api-base"
 import { optimizeCloudinaryUrl } from "@/lib/cloudinary"
-import { blogPosts } from "@/lib/blog-data"
 
 export default function Home() {
   const journeysRef1 = useRef<HTMLDivElement | null>(null)
@@ -19,8 +18,6 @@ export default function Home() {
   const [signaturePackages, setSignaturePackages] = useState<any[]>([])
   const [exclusivePackages, setExclusivePackages] = useState<any[]>([])
   const [isPackageLoading, setIsPackageLoading] = useState(true)
-  const blogCarouselRef = useRef<HTMLDivElement | null>(null)
-  const [activeBlogTab, setActiveBlogTab] = useState("all")
   const faq1Ref = useRef<HTMLDivElement | null>(null)
   const faq2Ref = useRef<HTMLDivElement | null>(null)
   const faq3Ref = useRef<HTMLDivElement | null>(null)
@@ -226,12 +223,6 @@ export default function Home() {
     el.scrollBy({ left: dir === "next" ? amount : -amount, behavior: "smooth" })
   }
 
-  const scrollBlog = (dir: "prev" | "next") => {
-    const el = blogCarouselRef.current
-    if (!el) return
-    const amount = Math.min(el.clientWidth, 350) + 24
-    el.scrollBy({ left: dir === "next" ? amount : -amount, behavior: "smooth" })
-  }
 
 
 
@@ -415,10 +406,10 @@ export default function Home() {
           <div className="mb-8 flex items-end justify-between">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold leading-tight tracking-tighter text-[#8B0000]">
-                Signature Escapes
+                Experience in India
               </h2>
               <p className="mt-2 text-base text-muted-foreground">
-                Curated picks to inspire your next unforgettable getaway.
+                Discover curated packages for India.
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-3">
@@ -840,133 +831,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Blog Section (Journeys, Stories & Tips) */}
-      <section className="py-16 sm:py-24 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-[2px] bg-[#2563eb]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#2563eb]">
-                  Updates & Insights
-                </span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Journeys, Stories & Tips
-              </h2>
-            </div>
-            
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setActiveBlogTab("all")}
-                className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 cursor-pointer ${
-                  activeBlogTab === "all"
-                    ? "bg-[#0b151f] text-white"
-                    : "bg-[#eaeff4] text-[#4f5e71] hover:bg-slate-200"
-                }`}
-              >
-                ALL POSTS
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveBlogTab("travel")}
-                className={`px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all duration-300 cursor-pointer ${
-                  activeBlogTab === "travel"
-                    ? "bg-[#0b151f] text-white"
-                    : "bg-[#eaeff4] text-[#4f5e71] hover:bg-slate-200"
-                }`}
-              >
-                TRAVEL
-              </button>
-              <Link
-                href="/blog"
-                className="text-xs sm:text-sm font-bold text-[#2563eb] hover:underline uppercase pl-2 flex items-center gap-1"
-              >
-                VIEW ALL
-              </Link>
-            </div>
-          </div>
-
-          {/* Carousel Slider */}
-          <div className="relative group">
-            {/* Left Scroll Button */}
-            <button
-              type="button"
-              onClick={() => scrollBlog("prev")}
-              className="absolute left-[-22px] top-[35%] -translate-y-1/2 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-white text-foreground shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-gray-50 focus:outline-none cursor-pointer"
-              aria-label="Previous Post"
-            >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
-            </button>
-
-            {/* Right Scroll Button */}
-            <button
-              type="button"
-              onClick={() => scrollBlog("next")}
-              className="absolute right-[-22px] top-[35%] -translate-y-1/2 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-white text-foreground shadow-md border border-gray-200 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-gray-50 focus:outline-none cursor-pointer"
-              aria-label="Next Post"
-            >
-              <ChevronRight className="h-6 w-6 text-gray-700" />
-            </button>
-
-            {/* Scrollable Container */}
-            <div
-              ref={blogCarouselRef}
-              className="-mx-4 flex overflow-x-auto scrollbar-hidden scroll-smooth"
-            >
-              <div className="flex items-stretch gap-6 px-4">
-                {/* Filtered Posts */}
-                {blogPosts
-                  .filter((post) => activeBlogTab === "all" || post.category.toLowerCase() === activeBlogTab)
-                  .map((post) => (
-                    <div
-                      key={post.id}
-                      className="relative flex w-80 sm:w-[350px] flex-col gap-3 rounded-xl bg-card transition-all duration-300 shrink-0 group/card cursor-pointer"
-                    >
-                      <Link href={`/blogdetail?id=${post.id}`} className="absolute inset-0 z-20" />
-                      
-                      {/* Image container */}
-                      <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-muted">
-                        <div
-                          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover/card:scale-105"
-                          style={{
-                            backgroundImage: `url(${post.image})`,
-                          }}
-                        />
-                      </div>
-
-                      {/* Metadata (Category & Date) */}
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-[#2563eb] text-[11px] font-bold uppercase tracking-wider">
-                          {post.category}
-                        </span>
-                        <span className="text-gray-300 mx-1.5 text-xs">•</span>
-                        <span className="text-xs text-muted-foreground font-semibold">
-                          {post.date}
-                        </span>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex flex-col gap-1.5 pr-2">
-                        <h3 className="text-base sm:text-lg font-bold text-foreground leading-snug group-hover/card:text-[#2563eb] transition-colors line-clamp-2">
-                          {post.title}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                          {post.excerpt}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-          
-        </div>
-      </section>
 
       {/* Testimonials Section */}
       <section className="flex justify-center bg-background overflow-hidden relative py-12 md:py-16 lg:py-24">

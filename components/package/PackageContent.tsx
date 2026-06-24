@@ -260,7 +260,7 @@ export function PackageContent({
                                                         <div className="grid grid-cols-1 md:grid-cols-2">
                                                             <div className="relative h-48 md:h-full overflow-hidden">
                                                                 <img
-                                                                    src={day.stay.image}
+                                                                    src={day.stay.image || "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"}
                                                                     alt={day.stay.name}
                                                                     className="w-full h-full object-cover"
                                                                 />
@@ -270,57 +270,71 @@ export function PackageContent({
                                                                 </div>
                                                             </div>
                                                             <div className="p-4">
-                                                                <div className="flex items-center gap-1.5 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
-                                                                    <MapPin className="w-3 h-3" />
-                                                                    <span>{day.stay.location}</span>
-                                                                </div>
+                                                                {day.stay.location && (
+                                                                    <div className="flex items-center gap-1.5 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
+                                                                        <MapPin className="w-3 h-3" />
+                                                                        <span>{day.stay.location}</span>
+                                                                    </div>
+                                                                )}
                                                                 <h6 className="text-lg font-bold text-slate-900 mb-3">
                                                                     {day.stay.name}
                                                                 </h6>
-
+ 
                                                                 {/* Distances */}
-                                                                <div className="grid grid-cols-3 gap-2 mb-4 py-3 border-y border-gray-100">
-                                                                    <div className="text-center">
-                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Airport</p>
-                                                                        <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.airport}</p>
+                                                                {(day.stay.distances && (day.stay.distances.airport || day.stay.distances.railway || day.stay.distances.cityHeart)) && (
+                                                                    <div className="grid grid-cols-3 gap-2 mb-4 py-3 border-y border-gray-100">
+                                                                        {day.stay.distances.airport && (
+                                                                            <div className="text-center">
+                                                                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Airport</p>
+                                                                                <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.airport}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {day.stay.distances.railway && (
+                                                                            <div className="text-center border-x border-gray-100">
+                                                                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Railway</p>
+                                                                                <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.railway}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {day.stay.distances.cityHeart && (
+                                                                            <div className="text-center">
+                                                                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">City Heart</p>
+                                                                                <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.cityHeart}</p>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                    <div className="text-center border-x border-gray-100">
-                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Railway</p>
-                                                                        <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.railway}</p>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">City Heart</p>
-                                                                        <p className="text-[10px] font-bold text-slate-900">{day.stay.distances.cityHeart}</p>
-                                                                    </div>
-                                                                </div>
-
+                                                                )}
+ 
                                                                 {/* Cuisine & Facilities */}
                                                                 <div className="space-y-3">
-                                                                    <div>
-                                                                        <h5 className="text-[10px] font-bold text-slate-900 mb-1 flex items-center gap-1.5">
-                                                                            <UtensilsCrossed className="w-3 h-3 text-primary" />
-                                                                            Cuisine
-                                                                        </h5>
-                                                                        <p className="text-[10px] text-slate-600 line-clamp-2">
-                                                                            {day.stay.cuisine}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div>
-                                                                        <h5 className="text-[10px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5">
-                                                                            <Hotel className="w-3 h-3 text-primary" />
-                                                                            Facilities
-                                                                        </h5>
-                                                                        <div className="flex flex-wrap gap-1">
-                                                                            {day.stay.facilities.slice(0, 4).map((f) => (
-                                                                                <span key={f} className="px-1.5 py-0.5 bg-slate-50 text-slate-600 text-[9px] font-medium rounded-full border border-slate-100">
-                                                                                    {f}
-                                                                                </span>
-                                                                            ))}
-                                                                            {day.stay.facilities.length > 4 && (
-                                                                                <span className="text-[9px] text-slate-400 font-medium ml-1">+{day.stay.facilities.length - 4} more</span>
-                                                                            )}
+                                                                    {day.stay.cuisine && (
+                                                                        <div>
+                                                                            <h5 className="text-[10px] font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                                                                                <UtensilsCrossed className="w-3 h-3 text-primary" />
+                                                                                Cuisine
+                                                                            </h5>
+                                                                            <p className="text-[10px] text-slate-600 line-clamp-2">
+                                                                                {day.stay.cuisine}
+                                                                            </p>
                                                                         </div>
-                                                                    </div>
+                                                                    )}
+                                                                    {day.stay.facilities && day.stay.facilities.length > 0 && (
+                                                                        <div>
+                                                                            <h5 className="text-[10px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5">
+                                                                                <Hotel className="w-3 h-3 text-primary" />
+                                                                                Facilities
+                                                                            </h5>
+                                                                            <div className="flex flex-wrap gap-1">
+                                                                                {day.stay.facilities.slice(0, 4).map((f) => (
+                                                                                    <span key={f} className="px-1.5 py-0.5 bg-slate-50 text-slate-600 text-[9px] font-medium rounded-full border border-slate-100">
+                                                                                        {f}
+                                                                                    </span>
+                                                                                ))}
+                                                                                {day.stay.facilities.length > 4 && (
+                                                                                    <span className="text-[9px] text-slate-400 font-medium ml-1">+{day.stay.facilities.length - 4} more</span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

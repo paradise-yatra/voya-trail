@@ -207,7 +207,7 @@ export default function PackageDetailPageClient({ packageData, category, destina
                                     title: day.title,
                                     description: day.description,
                                     experiences: day.experiences || [],
-                                    stay: day.stay ? {
+                                    stay: (day.stay && day.stay.name) ? {
                                         ...day.stay,
                                         image: getUrl(day.stay.image, { width: 900, height: 700, quality: "good" })
                                     } : undefined,
